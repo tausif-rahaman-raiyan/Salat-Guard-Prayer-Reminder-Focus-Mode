@@ -107,6 +107,15 @@ export default function App() {
   const [citySuggestions, setCitySuggestions] = useState<CityLocation[]>([]);
   const [isSearchingCity, setIsSearchingCity] = useState(false);
 
+  // In-app Toast message
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage((prev) => (prev === msg ? null : prev));
+    }, 4000);
+  };
+
   const todayStr = getDhakaDateString();
 
   // Initialize data
@@ -940,7 +949,7 @@ export default function App() {
                   <button
                     onClick={() => {
                       setShowSimulatedOverlay(false);
-                      alert(isEn ? 'Reminder snoozed for 5 minutes.' : '৫ মিনিট পরে পুনরায় রিমাইন্ডার শিডিউল করা হয়েছে।');
+                      showToast(isEn ? 'Reminder snoozed for 5 minutes.' : '৫ মিনিট পরে পুনরায় রিমাইন্ডার শিডিউল করা হয়েছে।');
                     }}
                     className="py-3.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-emerald-200 border border-emerald-400/30 font-semibold text-sm transition transform hover:-translate-y-0.5"
                   >
@@ -1239,6 +1248,16 @@ export default function App() {
                 {isEn ? 'Save' : 'সংরক্ষণ করুন'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* In-app Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="flex items-center gap-2.5 bg-emerald-900 border border-emerald-400 text-emerald-100 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-md">
+            <Bell className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="text-sm font-medium">{toastMessage}</span>
           </div>
         </div>
       )}

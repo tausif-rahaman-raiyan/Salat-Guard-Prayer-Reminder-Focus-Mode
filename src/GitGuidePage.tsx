@@ -8,7 +8,8 @@ import {
   Download,
   ShieldCheck,
   ExternalLink,
-  Cpu
+  AlertCircle,
+  Globe
 } from 'lucide-react';
 import { Language } from './translations';
 
@@ -43,7 +44,7 @@ git push -u origin main`
 
   const fullGitScript = gitCommands.join('\n\n');
 
-  const yamlContent = `name: Build Website & Extension Package
+  const yamlContent = `name: Build Website, Extension Package & Deploy Website
 
 on:
   push:
@@ -54,6 +55,12 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -67,11 +74,10 @@ jobs:
       - name: Set up Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 22
 
       - name: Install Project Dependencies
-        run: npm ci || npm install
+        run: npm install --legacy-peer-deps
 
       - name: Run Test Suite & Linter
         run: |
@@ -88,6 +94,7 @@ jobs:
           zip -r ../dist/packages/prayer-focus-v2.0.0.zip ./* -x "tests/*"
           cd ..
           cp dist/packages/prayer-focus-v2.0.0.zip public/prayer-focus-v2.0.0.zip 2>/dev/null || true
+          cp dist/packages/prayer-focus-v2.0.0.zip dist/prayer-focus-v2.0.0.zip 2>/dev/null || true
           echo "Extension zip packaged successfully!"
           ls -lh dist/packages/
 
@@ -97,27 +104,101 @@ jobs:
           name: prayer-focus-extension-v2.0.0
           path: dist/packages/prayer-focus-v2.0.0.zip
 
-      - name: Upload Web Build Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload GitHub Pages Artifact
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: prayer-focus-web-dist
-          path: dist/`;
+          path: dist/
+
+      - name: Create or Update GitHub Release with Extension ZIP
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.0.0
+          name: "Prayer Focus v2.0.0"
+          body: |
+            ## 🕌 Prayer Focus v2.0.0 Release
+            Automated production build of the Prayer Focus Chrome Extension (Manifest V3) & Website.
+            
+            ### 📦 Download & Install:
+            - Download prayer-focus-v2.0.0.zip attached below.
+            - Extract the zip file.
+            - In Chrome, open chrome://extensions/ and enable Developer Mode.
+            - Click Load unpacked and select the folder that directly contains manifest.json.
+          files: dist/packages/prayer-focus-v2.0.0.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+
+  deploy-website:
+    name: Deploy Website to GitHub Pages
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: \${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4`;
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-950 via-emerald-900/50 to-emerald-950 border border-emerald-500/30 rounded-3xl p-8 shadow-2xl">
-        <div className="flex items-center gap-3 mb-2">
-          <FolderGit2 className="w-8 h-8 text-emerald-400" />
-          <h1 className="text-2xl md:text-3xl font-black text-white">
-            {isEn ? 'GitHub Push Guide & Actions YAML' : 'গিটহাব পুশ ও অটোমেশন YAML নির্দেশিকা'}
-          </h1>
+      <div className="bg-gradient-to-r from-emerald-950 via-emerald-900/50 to-emerald-950 border border-emerald-500/30 rounded-3xl p-8 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <FolderGit2 className="w-8 h-8 text-emerald-400" />
+            <h1 className="text-2xl md:text-3xl font-black text-white">
+              {isEn ? 'GitHub Push, Deploy Website & YAML Pipeline' : 'গিটহাব পুশ, ওয়েবসাইট ডেপ্লয় ও YAML অটোমেশন'}
+            </h1>
+          </div>
+          <p className="text-emerald-200/90 text-sm max-w-2xl leading-relaxed">
+            {isEn
+              ? 'Push this codebase to GitHub to automatically trigger the pipeline: build the website, deploy it live to GitHub Pages, and package the Chrome Extension ZIP release.'
+              : 'নিচের কমান্ড দিয়ে গিটহাবে পুশ করলেই স্বয়ংক্রিয়ভাবে ওয়েবসাইটটি GitHub Pages-এ লাইভ ডেপ্লয় হবে এবং রিলিজ পেইজে এক্সটেনশনের জিপ তৈরি হয়ে যাবে।'}
+          </p>
         </div>
-        <p className="text-emerald-200/90 text-sm max-w-2xl leading-relaxed">
-          {isEn
-            ? 'Follow these exact terminal commands to push this codebase to your GitHub repository and automatically trigger the build pipeline to compile the website and extension zip package.'
-            : 'নিচের কমান্ডগুলো রান করে আপনার গিটহাব একাউন্টে কোড পুশ করুন। সাথে দেওয়া YAML ফাইলটি অটোমেটিক ওয়েবসাইট বিল্ড ও এক্সটেনশনের জিপ তৈরি করে দিবে।'}
-        </p>
+        <img
+          src="/assets/aistudio/praying_99ed162a.png"
+          alt="Prayer Focus"
+          className="w-16 h-16 object-contain drop-shadow-[0_0_12px_rgba(52,211,153,0.5)] shrink-0"
+        />
+      </div>
+
+      {/* Troubleshooting "Manifest file is missing or unreadable" */}
+      <div className="bg-amber-950/40 border border-amber-500/40 rounded-3xl p-7 space-y-4">
+        <div className="flex items-center gap-2.5">
+          <AlertCircle className="w-6 h-6 text-amber-400 shrink-0" />
+          <h2 className="text-lg font-bold text-amber-300">
+            {isEn ? 'How to Solve "Manifest file is missing or unreadable"' : '"Manifest file is missing or unreadable" ত্রুটি সমাধানের নিয়ম'}
+          </h2>
+        </div>
+        <div className="text-xs md:text-sm text-amber-100/90 leading-relaxed space-y-2">
+          <p>
+            {isEn
+              ? 'When Chrome shows this error, it means you selected a folder that does not directly contain the "manifest.json" file.'
+              : 'গুগল ক্রোমে এই ত্রুটি দেখালে বুঝবেন আপনি এমন একটি ফোল্ডার সিলেক্ট করেছেন যার ভেতরে সরাসরি "manifest.json" ফাইলটি নেই (হয়তো কোনো সাবফোল্ডারের ভেতরে রয়েছে)।'}
+          </p>
+          <div className="bg-black/50 border border-amber-500/20 rounded-xl p-4 font-mono text-xs text-amber-200 space-y-1">
+            <div className="font-bold text-emerald-400">
+              {isEn ? '✓ CORRECT folder structure to select:' : '✓ যে ফোল্ডারটি নির্বাচন করতে হবে:'}
+            </div>
+            <div>📂 Selected Folder/</div>
+            <div className="pl-4">├── 📄 manifest.json &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← (Must be directly here!)</div>
+            <div className="pl-4">├── 📁 assets/</div>
+            <div className="pl-4">├── 📁 background/</div>
+            <div className="pl-4">├── 📁 dashboard/</div>
+            <div className="pl-4">└── 📁 popup/</div>
+          </div>
+          <p className="text-xs text-amber-200/80">
+            {isEn
+              ? 'If you extracted the ZIP into "prayer-focus-v2.0.0", double click into it to check if there is an inner "prayer-focus-v2" folder. Click into the folder where "manifest.json" is visible, and select that folder.'
+              : 'জিপ ফাইল আনজিপ করার পর ফোল্ডারটি ওপেন করে নিশ্চিত হোন যে ভেতরে manifest.json দেখা যাচ্ছে। যে ফোল্ডারে manifest.json রয়েছে, "Load unpacked" এ ক্লিক করে ঠিক সেই ফোল্ডারটি নির্বাচন করুন।'}
+          </p>
+        </div>
       </div>
 
       {/* Step by Step Git Commands */}
@@ -164,20 +245,20 @@ jobs:
         </div>
       </div>
 
-      {/* GitHub Actions YAML Workflow */}
+      {/* GitHub Actions YAML Workflow with Automatic Website Deployment */}
       <div className="bg-emerald-950/40 border border-emerald-500/20 rounded-3xl p-7 space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <FileCode2 className="w-5 h-5 text-emerald-400" />
+              <Globe className="w-5 h-5 text-emerald-400" />
               <h2 className="text-lg font-bold text-white">
-                {isEn ? 'GitHub Actions Workflow (.github/workflows/build-and-package.yml)' : 'গিটহাব অ্যাকশনস অটোমেশন ফাইল'}
+                {isEn ? 'GitHub Actions Workflow with Auto Website Deployment' : 'গিটহাব অ্যাকশনস ও ওয়েবসাইট অটো ডেপ্লয় YAML'}
               </h2>
             </div>
             <p className="text-xs text-emerald-300/80 mt-1">
               {isEn
-                ? 'Automatically lints, runs tests, creates dist/ web build, and packages prayer-focus-v2.0.0.zip on push.'
-                : 'প্রতিটি পুশের সাথে সাথে অটোমেটিক টেস্ট রান করে ওয়েবসাইট ও এক্সটেনশনের জিপ বানাবে।'}
+                ? 'File location: .github/workflows/build-and-package.yml. Deploys website to GitHub Pages and attaches zip to GitHub Releases.'
+                : 'ফাইল লোকেশন: .github/workflows/build-and-package.yml। এটি ওয়েবসাইটকে GitHub Pages-এ লাইভ করে এবং জিপ রিলিজ যুক্ত করে।'}
             </p>
           </div>
           <button
@@ -209,38 +290,38 @@ jobs:
       <div className="bg-emerald-900/20 border border-emerald-500/20 rounded-3xl p-7 space-y-4">
         <h2 className="text-lg font-bold text-white flex items-center gap-2">
           <ShieldCheck className="w-5 h-5 text-emerald-400" />
-          <span>{isEn ? 'How to Load the Extension in Chrome' : 'ক্রোমে এক্সটেনশনটি যেভাবে ইনস্টল করবেন'}</span>
+          <span>{isEn ? 'How to Load the Extension in Chrome (Correct Method)' : 'ক্রোমে সঠিকভাবে এক্সটেনশনটি লোড করার পদ্ধতি'}</span>
         </h2>
-        <ol className="list-decimal list-inside space-y-2 text-xs md:text-sm text-emerald-200/90 leading-relaxed">
+        <ol className="list-decimal list-inside space-y-2.5 text-xs md:text-sm text-emerald-200/90 leading-relaxed">
           <li>
             {isEn
-              ? 'Download the packaged ZIP file using the green button at the top or clone your repo.'
-              : 'ওপরের সবুজ বাটন থেকে prayer-focus-v2.0.0.zip ডাউনলোড করুন অথবা রিপোজিটরি ক্লোন করুন।'}
+              ? 'Download "prayer-focus-v2.0.0.zip" from the top-right button.'
+              : 'ওপরের ডানপাশের বাটন থেকে "prayer-focus-v2.0.0.zip" ডাউনলোড করুন।'}
           </li>
           <li>
             {isEn
-              ? 'Extract the ZIP so you have the "prayer-focus-v2" folder.'
-              : 'জিপ ফাইলটি আনজিপ করুন যেন "prayer-focus-v2" ফোল্ডারটি পাওয়া যায়।'}
+              ? 'Extract/Unzip the file on your computer (e.g. into your folder).'
+              : 'ফাইলটি আপনার কম্পিউটারে আনজিপ (Extract) করুন।'}
           </li>
           <li>
             {isEn
-              ? 'In Google Chrome, navigate to chrome://extensions/ in the address bar.'
-              : 'গুগল ক্রোম ব্রাউজারে chrome://extensions/ লিখে এন্টার চাপুন।'}
+              ? 'In Google Chrome, navigate to chrome://extensions/ in your URL bar.'
+              : 'গুগল ক্রোমের অ্যাড্রেস বারে chrome://extensions/ লিখে এন্টার দিন।'}
           </li>
           <li>
             {isEn
-              ? 'Enable the "Developer mode" toggle located in the top-right corner.'
-              : 'ডান পাশের ওপরের কোণায় থাকা "Developer mode" অন করুন।'}
+              ? 'Toggle ON "Developer mode" in the top-right corner.'
+              : 'ডান পাশের ওপরের কোনায় থাকা "Developer mode" সুইচটি অন করুন।'}
           </li>
           <li>
             {isEn
-              ? 'Click "Load unpacked" (top-left) and select the prayer-focus-v2 directory.'
-              : 'বাম পাশের ওপরে "Load unpacked" এ ক্লিক করে prayer-focus-v2 ফোল্ডারটি নির্বাচন করুন।'}
+              ? 'Click "Load unpacked" (top-left) and select the folder that contains "manifest.json".'
+              : 'বাম পাশের ওপরে "Load unpacked" এ ক্লিক করুন এবং manifest.json থাকা মূল ফোল্ডারটি সিলেক্ট করুন।'}
           </li>
           <li>
             {isEn
-              ? 'Done! The Prayer Focus extension is now live and protecting your prayers.'
-              : 'অভিনন্দন! Prayer Focus এক্সটেনশনটি আপনার ব্রাউজারে সক্রিয় হয়ে গেছে।'}
+              ? 'Done! The Prayer Focus extension icon appears in your toolbar with the worshipper emblem.'
+              : 'সম্পন্ন! Prayer Focus এক্সটেনশনটি আপনার ব্রাউজারে সুন্দর আইকনসহ প্রস্তুত হয়ে যাবে।'}
           </li>
         </ol>
       </div>

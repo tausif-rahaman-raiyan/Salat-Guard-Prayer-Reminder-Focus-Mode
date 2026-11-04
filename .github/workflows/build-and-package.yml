@@ -1,4 +1,4 @@
-name: Build Website & Extension Package
+name: Build Website, Extension Package & Deploy Website
 
 on:
   push:
@@ -9,6 +9,12 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -42,6 +48,7 @@ jobs:
           zip -r ../dist/packages/prayer-focus-v2.0.0.zip ./* -x "tests/*"
           cd ..
           cp dist/packages/prayer-focus-v2.0.0.zip public/prayer-focus-v2.0.0.zip 2>/dev/null || true
+          cp dist/packages/prayer-focus-v2.0.0.zip dist/prayer-focus-v2.0.0.zip 2>/dev/null || true
           echo "Extension zip packaged successfully!"
           ls -lh dist/packages/
 
@@ -51,10 +58,10 @@ jobs:
           name: prayer-focus-extension-v2.0.0
           path: dist/packages/prayer-focus-v2.0.0.zip
 
-      - name: Upload Web Build Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload GitHub Pages Artifact
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: prayer-focus-web-dist
           path: dist/
 
       - name: Create or Update GitHub Release with Extension ZIP
@@ -65,13 +72,28 @@ jobs:
           name: "Prayer Focus v2.0.0"
           body: |
             ## 🕌 Prayer Focus v2.0.0 Release
-            Automated production build of the Prayer Focus Chrome Extension (Manifest V3) & Dashboard.
+            Automated production build of the Prayer Focus Chrome Extension (Manifest V3) & Website.
             
             ### 📦 Download & Install:
             - Download `prayer-focus-v2.0.0.zip` attached below.
-            - Unzip and load unpacked in Chrome via `chrome://extensions/` with Developer Mode enabled.
+            - Extract the zip file.
+            - In Chrome, open `chrome://extensions/` and enable **Developer Mode**.
+            - Click **Load unpacked** and select the folder that contains `manifest.json`.
           files: dist/packages/prayer-focus-v2.0.0.zip
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-website:
+    name: Deploy Website to GitHub Pages
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -42,8 +42,8 @@ export const DocsPage: React.FC<DocsProps> = ({ lang }) => {
                 : 'গুগল ক্রোমের অরিজিনাল New Tab অক্ষত রেখে ৫ ওয়াক্ত সালাত সুরক্ষা ও কোরআন অধ্যয়নের সুদৃঢ় অভ্যাস গড়ে তোলার জন্য একটি পূর্ণাঙ্গ ইসলামিক প্রোডাক্টিভিটি এক্সটেনশন ও ওয়েব ড্যাশবোর্ড।'}
             </p>
           </div>
-          <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-4xl shadow-inner shrink-0">
-            🕌
+          <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-inner shrink-0">
+            <img src="/assets/aistudio/praying_99ed162a.png" alt="Prayer Focus" className="w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
           </div>
         </div>
       </div>

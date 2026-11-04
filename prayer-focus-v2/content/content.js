@@ -59,9 +59,11 @@
         ? 'এই উইন্ডোটি নামাজ ফোকাস চলাকালে সচল থাকবে। ব্রাউজারের সিস্টেম পেইজ বা সেটিংস ব্লক করা সম্ভব নয়।'
         : 'This window remains active during prayer focus. Browser internal pages cannot be blocked.';
 
+      const iconUrl = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL ? chrome.runtime.getURL('assets/icons/icon128.png') : '/assets/aistudio/praying_99ed162a.png';
+
       overlayElement.innerHTML = `
         <div class="pf-card">
-          <div class="pf-icon-container">🕌</div>
+          <div class="pf-icon-container"><img src="${iconUrl}" alt="Prayer Focus" style="width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(52,211,153,0.6)); margin: 0 auto 10px auto;"></div>
           <h2 class="pf-title">${title}</h2>
           <p class="pf-subtext">${sub}</p>
           <div class="pf-focus-timer" id="pf-countdown">--:--</div>
@@ -119,10 +121,12 @@
     const btn1Text = isBn ? "✓ আমি নামাজে যাচ্ছি" : "✓ I am going to pray";
     const btn2Text = isBn ? "৫ মিনিট পরে মনে করিয়ে দিন" : "Remind me in 5 minutes";
 
-    overlayElement.innerHTML = `
-      <div class="pf-card">
-        <div class="pf-icon-container">🕌</div>
-        <h2 class="pf-title">${titleText}</h2>
+      const iconUrl = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL ? chrome.runtime.getURL('assets/icons/icon128.png') : '/assets/aistudio/praying_99ed162a.png';
+
+      overlayElement.innerHTML = `
+        <div class="pf-card">
+          <div class="pf-icon-container"><img src="${iconUrl}" alt="Prayer Focus" style="width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(52,211,153,0.6)); margin: 0 auto 10px auto;"></div>
+          <h2 class="pf-title">${titleText}</h2>
         <p class="pf-subtext">${subText}</p>
         
         <div class="pf-quote-box">

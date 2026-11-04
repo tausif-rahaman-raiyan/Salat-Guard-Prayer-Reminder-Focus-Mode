@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prayer Focus – Pray • Focus • Grow</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="theme-emerald">
+  <!-- Full-width clean container (NO SIDEBAR) -->
+  <div class="dashboard-app">
+    
+    <!-- Top Navigation Bar -->
+    <header class="dashboard-header">
+      <div class="header-brand">
+        <span class="brand-symbol">🕌</span>
+        <div>
+          <h1 class="brand-title">Prayer Focus</h1>
+          <p class="brand-subtitle">Pray • Focus • Grow</p>
+        </div>
+      </div>
+
+      <!-- Live Clock & Location Header Item -->
+      <div class="header-center">
+        <div class="live-clock" id="live-clock">--:--:--</div>
+        <div class="live-date" id="live-date">লোড হচ্ছে...</div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Language Switcher in Extension Dashboard -->
+        <div class="lang-switch-box" style="display: flex; background: rgba(0,0,0,0.4); border: 1px solid rgba(52,211,153,0.3); border-radius: 12px; padding: 2px;">
+          <button id="lang-btn-en" class="lang-btn active" style="background: #10b981; color: #022c22; border: none; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer;">EN</button>
+          <button id="lang-btn-bn" class="lang-btn" style="background: transparent; color: #a7f3d0; border: none; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer;">বাংলা</button>
+        </div>
+        <div class="location-badge" id="header-location">
+          <span>📍</span> <span id="loc-display">Chattogram, Bangladesh</span>
+        </div>
+        <button class="nav-btn" id="btn-show-settings" title="Settings">⚙️ <span id="btn-settings-label">Settings</span></button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="dashboard-main">
+      
+      <!-- 1. Daily Islamic Reminder Hero Card -->
+      <section class="card reminder-hero-card">
+        <div class="hero-header">
+          <span class="badge-tag">আজকের ইসলামিক উপদেশ ও দিকনির্দেশনা</span>
+          <span class="hero-icon">📖</span>
+        </div>
+        <p class="hero-quote-text" id="daily-quote-text">লোড হচ্ছে...</p>
+        <p class="hero-quote-ref" id="daily-quote-ref">--</p>
+      </section>
+
+      <!-- 2. Next Prayer Banner with Live Countdown -->
+      <section class="card next-prayer-banner">
+        <div class="banner-left">
+          <span class="banner-label">পরবর্তী ওয়াক্ত</span>
+          <div class="banner-prayer-name" id="banner-prayer-name">নামাজ</div>
+          <div class="banner-prayer-time" id="banner-prayer-time">ওয়াক্ত শুরু: --:--</div>
+        </div>
+        <div class="banner-right">
+          <div class="countdown-title">ওয়াক্ত শুরু হতে সময় বাকি</div>
+          <div class="large-countdown" id="banner-countdown">--:--:--</div>
+        </div>
+      </section>
+
+      <!-- 3. Five Daily Prayers Cards with ACTUAL Completion Actions -->
+      <section class="section-container">
+        <div class="section-header">
+          <h2>দৈনিক ৫ ওয়াক্ত সালাত</h2>
+          <div class="sync-status" id="sync-info">সিঙ্ক স্ট্যাটাস: চেক করা হচ্ছে...</div>
+        </div>
+        <div class="prayer-cards-row" id="prayer-cards-container">
+          <!-- Dynamically populated 5 cards -->
+        </div>
+      </section>
+
+      <!-- 4. Split Grid: Actual Today's Progress & Quran Timer -->
+      <div class="two-columns-grid">
+        
+        <!-- Left: Actual Daily Completion Summary (NO DEMO DATA) -->
+        <section class="card progress-card">
+          <div class="card-title-bar">
+            <h3>দৈনিক সালাত অগ্রগতি</h3>
+            <span class="card-icon">📊</span>
+          </div>
+
+          <div id="progress-content">
+            <!-- If no data, renders "আজকের কোনো কার্যক্রম এখনো রেকর্ড করা হয়নি।" -->
+          </div>
+        </section>
+
+        <!-- Right: Real-time Quran Reading Timer -->
+        <section class="card quran-timer-card">
+          <div class="card-title-bar">
+            <h3>কোরআন তিলাওয়াত টাইমার</h3>
+            <span class="card-icon">📿</span>
+          </div>
+          
+          <div class="quran-timer-display" id="quran-timer-digits">00:00:00</div>
+          
+          <div class="quran-controls">
+            <button class="timer-btn btn-start" id="btn-timer-start">শুরু করুন</button>
+            <button class="timer-btn btn-pause" id="btn-timer-pause" disabled>বিরতি</button>
+            <button class="timer-btn btn-stop" id="btn-timer-stop" disabled>সংরক্ষণ ও শেষ</button>
+            <button class="timer-btn btn-reset" id="btn-timer-reset">রিসেট</button>
+          </div>
+
+          <div class="quran-stats-box" id="quran-stats-box">
+            <div class="stat-item">
+              <span class="stat-label">আজকের তিলাওয়াত</span>
+              <span class="stat-value" id="quran-today-mins">০ মিনিট</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">মোট সময়</span>
+              <span class="stat-value" id="quran-total-mins">০ মিনিট</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">দৈনিক লক্ষ্য</span>
+              <span class="stat-value" id="quran-goal-display">১৫ মিনিট</span>
+            </div>
+          </div>
+          <p class="timer-note">এই টাইমার আপনার স্ব-প্রতিবেদিত কোরআন পাঠের সময় সংরক্ষণ করে।</p>
+        </section>
+
+      </div>
+
+      <!-- 5. Actual Monthly Prayer Calendar & History -->
+      <section class="card calendar-card">
+        <div class="calendar-header-bar">
+          <div>
+            <h3>মাসিক সালাত ক্যালেন্ডার ও রেকর্ড</h3>
+            <p class="calendar-sub">আপনার বাস্তব সংরক্ষিত সালাতের পরিসংখ্যান (Asia/Dhaka)</p>
+          </div>
+          <div class="calendar-nav">
+            <button class="cal-nav-btn" id="cal-prev">◀ পূর্ববর্তী মাস</button>
+            <span class="cal-current-label" id="cal-current-label">নভেম্বর ২০২৬</span>
+            <button class="cal-nav-btn" id="cal-next">পরবর্তী মাস ▶</button>
+          </div>
+        </div>
+
+        <div class="calendar-grid-header">
+          <span>রবি</span><span>সোম</span><span>মঙ্গল</span><span>বুধ</span><span>বৃহ</span><span>শুক্র</span><span>শনি</span>
+        </div>
+        <div class="calendar-days-grid" id="calendar-days-container">
+          <!-- Calendar cells rendered by calendar.js -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Settings Modal (Full Settings Configuration) -->
+    <div class="modal-overlay" id="settings-modal" style="display: none;">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>সেটিংস ও কনফিগারেশন</h3>
+          <button class="modal-close" id="btn-close-settings">✕</button>
+        </div>
+        <div class="modal-body">
+          
+          <div class="settings-group">
+            <h4>অবস্থান ও টাইমজোন</h4>
+            <div class="form-row">
+              <label>শহরের নাম</label>
+              <input type="text" id="setting-city" class="form-input">
+            </div>
+            <div class="form-grid-2">
+              <div class="form-row">
+                <label>অক্ষাংশ (Latitude)</label>
+                <input type="number" step="0.0001" id="setting-lat" class="form-input">
+              </div>
+              <div class="form-row">
+                <label>দ্রাঘিমাংশ (Longitude)</label>
+                <input type="number" step="0.0001" id="setting-lng" class="form-input">
+              </div>
+            </div>
+            <div class="form-row">
+              <label>টাইমজোন</label>
+              <input type="text" id="setting-tz" class="form-input" disabled value="Asia/Dhaka">
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h4>ঘড়ির ফরম্যাট ও সময় সমন্বয় (Time Format & Adjustments)</h4>
+            <div class="form-row">
+              <label>সময় প্রদর্শনের ফরম্যাট</label>
+              <select id="setting-time-format" class="form-input">
+                <option value="12h">12-Hour Format (e.g. 5:15 PM)</option>
+                <option value="24h">24-Hour Format (e.g. 17:15)</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>স্থায়ী ওয়াক্ত সময় পরিবর্তন (মিনিট - সব দিনের জন্য প্রযোজ্য)</label>
+              <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; text-align: center;">
+                <div>
+                  <span style="font-size: 11px; display: block; color: #a7f3d0;">ফজর</span>
+                  <input type="number" id="offset-fajr" class="form-input" style="padding: 6px 2px; text-align: center;" value="0">
+                </div>
+                <div>
+                  <span style="font-size: 11px; display: block; color: #a7f3d0;">যোহর</span>
+                  <input type="number" id="offset-dhuhr" class="form-input" style="padding: 6px 2px; text-align: center;" value="0">
+                </div>
+                <div>
+                  <span style="font-size: 11px; display: block; color: #a7f3d0;">আসর</span>
+                  <input type="number" id="offset-asr" class="form-input" style="padding: 6px 2px; text-align: center;" value="0">
+                </div>
+                <div>
+                  <span style="font-size: 11px; display: block; color: #a7f3d0;">মাগরিব</span>
+                  <input type="number" id="offset-maghrib" class="form-input" style="padding: 6px 2px; text-align: center;" value="0">
+                </div>
+                <div>
+                  <span style="font-size: 11px; display: block; color: #a7f3d0;">এশা</span>
+                  <input type="number" id="offset-isha" class="form-input" style="padding: 6px 2px; text-align: center;" value="0">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h4>সালাতের হিসাব পদ্ধতি</h4>
+            <div class="form-row">
+              <label>পদ্ধতি (Calculation Method)</label>
+              <select id="setting-method" class="form-input">
+                <option value="1">University of Islamic Sciences, Karachi (বাংলাদেশ ও উপমহাদেশ)</option>
+                <option value="4">Umm Al-Qura University, Makkah</option>
+                <option value="3">Muslim World League (MWL)</option>
+                <option value="2">Islamic Society of North America (ISNA)</option>
+                <option value="5">Egyptian General Authority of Survey</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>আসর মাযহাব (Juristic Method)</label>
+              <select id="setting-asr" class="form-input">
+                <option value="1">হানাফি (Hanafi - আসর দেরিতে)</option>
+                <option value="0">শাফি, মালিকি, হাম্বলি (Standard)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h4>রিমাইন্ডার ও ফোকাস মোড</h4>
+            <div class="form-row checkbox-row">
+              <input type="checkbox" id="setting-notifications">
+              <label for="setting-notifications">ওয়াক্ত শুরু হলে স্বয়ংক্রিয় রিমাইন্ডার পপআপ ও অ্যালার্ম চালু রাখুন</label>
+            </div>
+            <div class="form-grid-2">
+              <div class="form-row">
+                <label>ফোকাস সময় (মিনিট)</label>
+                <input type="number" min="1" max="60" id="setting-focus-duration" class="form-input">
+              </div>
+              <div class="form-row">
+                <label>স্নুজ সময় (মিনিট)</label>
+                <input type="number" min="1" max="30" id="setting-snooze-duration" class="form-input">
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h4>কোরআন লক্ষ্য ও পছন্দ</h4>
+            <div class="form-row">
+              <label>দৈনিক তিলাওয়াতের লক্ষ্য (মিনিট)</label>
+              <input type="number" min="1" max="180" id="setting-quran-goal" class="form-input">
+            </div>
+            <div class="form-row">
+              <label>আপনার নাম / উপাধি</label>
+              <input type="text" id="setting-display-name" class="form-input">
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="btn-cancel-settings">বাতিল</button>
+          <button class="btn btn-primary" id="btn-save-settings">সংরক্ষণ করুন</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="dashboard-footer">
+      <p>Prayer Focus v2.0.0 • গুগল ক্রোমের অরিজিনাল New Tab সংরক্ষিত • Asia/Dhaka সময় অনুযায়ী গণনাকৃত</p>
+    </footer>
+
+  </div>
+
+  <script type="module" src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+name: Build Website & Extension Package
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build & Package Prayer Focus
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Project Dependencies
+        run: npm ci || npm install
+
+      - name: Run Test Suite & Linter
+        run: |
+          npm run lint
+          node prayer-focus-v2/tests/prayer-engine.test.js
+
+      - name: Build Web Application
+        run: npm run build
+
+      - name: Package Chrome Extension ZIP
+        run: |
+          mkdir -p dist/packages
+          cd prayer-focus-v2
+          zip -r ../dist/packages/prayer-focus-v2.0.0.zip ./* -x "tests/*"
+          cd ..
+          cp dist/packages/prayer-focus-v2.0.0.zip public/prayer-focus-v2.0.0.zip 2>/dev/null || true
+          echo "Extension zip packaged successfully!"
+          ls -lh dist/packages/
+
+      - name: Upload Extension ZIP Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: prayer-focus-extension-v2.0.0
+          path: dist/packages/prayer-focus-v2.0.0.zip
+
+      - name: Upload Web Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: prayer-focus-web-dist
+          path: dist/
+
+      - name: Create or Update GitHub Release with Extension ZIP
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.0.0
+          name: "Prayer Focus v2.0.0"
+          body: |
+            ## 🕌 Prayer Focus v2.0.0 Release
+            Automated production build of the Prayer Focus Chrome Extension (Manifest V3) & Dashboard.
+            
+            ### 📦 Download & Install:
+            - Download `prayer-focus-v2.0.0.zip` attached below.
+            - Unzip and load unpacked in Chrome via `chrome://extensions/` with Developer Mode enabled.
+          files: dist/packages/prayer-focus-v2.0.0.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

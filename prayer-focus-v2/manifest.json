@@ -1,0 +1,63 @@
+{
+  "manifest_version": 3,
+  "name": "Prayer Focus – Pray • Focus • Grow",
+  "version": "2.0.0",
+  "description": "Protect your five daily prayers with automatic prayer reminders, intentional focus mode, Quran reading timer, and habit tracking. Preserves Chrome New Tab.",
+  "permissions": [
+    "alarms",
+    "storage",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://api.aladhan.com/*",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "32": "assets/icons/icon32.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    },
+    "default_title": "Prayer Focus – Pray • Focus • Grow"
+  },
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "32": "assets/icons/icon32.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "css": [
+        "content/overlay.css"
+      ],
+      "js": [
+        "content/content.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/icons/*",
+        "content/overlay.css"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
+    }
+  ]
+}

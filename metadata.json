@@ -1,0 +1,6 @@
+{
+  "name": "Prayer Focus – Pray • Focus • Grow",
+  "description": "Complete Islamic productivity extension & dashboard for prayer tracking, Quran reading timer, focus mode, and daily reminders.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

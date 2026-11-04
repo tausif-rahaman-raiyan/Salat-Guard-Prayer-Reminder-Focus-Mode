@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prayer Focus – Pray • Focus • Grow</title>
+    <meta name="description" content="Complete Islamic productivity dashboard for prayer tracking, Quran reading timer, focus mode, and daily reminders." />
+    <meta property="og:title" content="Prayer Focus – Pray • Focus • Grow" />
+    <meta property="og:description" content="Complete Islamic productivity dashboard for prayer tracking, Quran reading timer, focus mode, and daily reminders." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      // Defensive guard for browser extensions that attempt `window.fetch = ...` when window.fetch only has a getter
+      (function() {
+        try {
+          var desc = Object.getOwnPropertyDescriptor(window, 'fetch') || Object.getOwnPropertyDescriptor(Object.getPrototypeOf(window), 'fetch');
+          if (desc && !desc.writable && !desc.set) {
+            var origFetch = window.fetch;
+            Object.defineProperty(window, 'fetch', {
+              configurable: true,
+              enumerable: true,
+              get: function() { return origFetch; },
+              set: function(fn) { origFetch = fn; }
+            });
+          }
+        } catch (e) {
+          // Ignore if environment blocks descriptor redefine
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

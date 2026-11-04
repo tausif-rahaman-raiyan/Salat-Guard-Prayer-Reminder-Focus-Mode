@@ -134,8 +134,10 @@ body {
 }
 
 .grid-item.active {
-  background: rgba(16, 185, 129, 0.25);
-  border-color: #34d399;
+  background: rgba(16, 185, 129, 0.3);
+  border-color: #10b981;
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.45);
+  transform: translateY(-1px);
 }
 
 .p-name {

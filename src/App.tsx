@@ -261,7 +261,7 @@ export default function App() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-lg text-emerald-400 tracking-tight">{t.appName}</span>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">v2.0.0</span>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">v2.1.0</span>
               </div>
               <p className="text-xs text-emerald-300/80">{t.tagline}</p>
             </div>
@@ -347,8 +347,8 @@ export default function App() {
             </button>
 
             <a
-              href="/prayer-focus-v2.0.0.zip"
-              download="prayer-focus-v2.0.0.zip"
+              href="/prayer-focus-v2.1.0.zip"
+              download="prayer-focus-v2.1.0.zip"
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-emerald-950 transition shadow-md shadow-emerald-500/20"
             >
               <Download className="w-4 h-4" />
@@ -442,6 +442,18 @@ export default function App() {
                       ({isEn ? nextPrayerInfo.next?.limitEn : nextPrayerInfo.next?.limitBn})
                     </span>
                   </div>
+
+                  {nextPrayerInfo.current && (
+                    <div className="mt-3 flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/40 rounded-xl px-3 py-1.5 text-xs text-emerald-200">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                      <strong className="text-white">
+                        {isEn ? 'Current Window:' : 'বর্তমান ওয়াক্ত:'} {isEn ? nextPrayerInfo.current.nameEn : nextPrayerInfo.current.name} ({nextPrayerInfo.current.arabicName})
+                      </strong>
+                      <span className="text-emerald-300 font-mono">
+                        • {isEn ? nextPrayerInfo.current.windowEn : toBengaliNumerals(nextPrayerInfo.current.windowBn)}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="bg-emerald-950/70 border border-emerald-400/20 px-6 py-4 rounded-2xl text-center md:text-right min-w-[240px]">
@@ -832,6 +844,19 @@ export default function App() {
                   {isEn ? 'Active' : 'সক্রিয়'}
                 </div>
               </div>
+
+              {/* Present Prayer Card in Popup Preview */}
+              {nextPrayerInfo?.current && (
+                <div className="bg-emerald-500/20 border border-emerald-400/40 rounded-xl px-3 py-2 flex items-center justify-between text-xs text-emerald-200">
+                  <div className="flex items-center gap-1.5 font-bold text-white">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>{isEn ? 'Present Window:' : 'বর্তমান ওয়াক্ত:'} {isEn ? nextPrayerInfo.current.nameEn : nextPrayerInfo.current.name}</span>
+                  </div>
+                  <span className="text-[11px] text-emerald-300 font-mono">
+                    {isEn ? nextPrayerInfo.current.windowEn : toBengaliNumerals(nextPrayerInfo.current.windowBn)}
+                  </span>
+                </div>
+              )}
 
               {/* Next Prayer Card */}
               {nextPrayerInfo && (

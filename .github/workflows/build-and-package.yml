@@ -41,12 +41,28 @@ jobs:
       - name: Build Web Application
         run: npm run build
 
+      - name: Deploy to gh-pages branch (Fallback for branch deployment)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        run: |
+          cd dist
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b gh-pages
+          git add -A
+          git commit -m "deploy: automatic production build for GitHub Pages"
+          git push -f https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages || true
+          cd ..
+
       - name: Package Chrome Extension ZIP
         run: |
           mkdir -p dist/packages
           cd prayer-focus-v2
+          zip -r ../dist/packages/prayer-focus-v2.1.0.zip ./* -x "tests/*"
           zip -r ../dist/packages/prayer-focus-v2.0.0.zip ./* -x "tests/*"
           cd ..
+          cp dist/packages/prayer-focus-v2.1.0.zip public/prayer-focus-v2.1.0.zip 2>/dev/null || true
+          cp dist/packages/prayer-focus-v2.1.0.zip dist/prayer-focus-v2.1.0.zip 2>/dev/null || true
           cp dist/packages/prayer-focus-v2.0.0.zip public/prayer-focus-v2.0.0.zip 2>/dev/null || true
           cp dist/packages/prayer-focus-v2.0.0.zip dist/prayer-focus-v2.0.0.zip 2>/dev/null || true
           echo "Extension zip packaged successfully!"
@@ -55,8 +71,8 @@ jobs:
       - name: Upload Extension ZIP Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: prayer-focus-extension-v2.0.0
-          path: dist/packages/prayer-focus-v2.0.0.zip
+          name: prayer-focus-extension-v2.1.0
+          path: dist/packages/prayer-focus-v2.1.0.zip
 
       - name: Upload GitHub Pages Artifact
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
@@ -68,19 +84,26 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v2.0.0
-          name: "Prayer Focus v2.0.0"
+          tag_name: v2.1.0
+          name: "Prayer Focus v2.1.0"
           body: |
-            ## 🕌 Prayer Focus v2.0.0 Release
-            Automated production build of the Prayer Focus Chrome Extension (Manifest V3) & Website.
+            ## 🕌 Prayer Focus v2.1.0 Release
+            Automated production build of the Prayer Focus Chrome Extension (Manifest V3) & Companion Dashboard.
+            
+            ### ✨ What's New in v2.1.0:
+            - **Global City Autocomplete**: Search any city worldwide with instant coordinates and timezone auto-fill.
+            - **Current Prayer Window**: Live visual indicator for present ongoing Salah and ending window time.
+            - **Settings Modal UI Fix**: Prominent Cancel and Save Settings options with sticky footer and full styling.
             
             ### 📦 Download & Install:
-            - Download `prayer-focus-v2.0.0.zip` attached below.
+            - Download `prayer-focus-v2.1.0.zip` attached below.
             - Extract the zip file.
             - In Chrome, open `chrome://extensions/` and enable **Developer Mode** (top-right).
             - Click **Load unpacked** (top-left) and select the folder that directly contains `manifest.json` (`prayer-focus-v2`).
             - *Note*: If you cloned or downloaded the whole repository ZIP, select the `prayer-focus-v2` subfolder, not the repo root!
-          files: dist/packages/prayer-focus-v2.0.0.zip
+          files: |
+            dist/packages/prayer-focus-v2.1.0.zip
+            dist/packages/prayer-focus-v2.0.0.zip
           draft: false
           prerelease: false
         env:

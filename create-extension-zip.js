@@ -115,8 +115,10 @@ function computeCrc32(buf) {
 }
 
 const src = path.resolve('prayer-focus-v2');
+createZip(src, path.resolve('prayer-focus-v2.1.0.zip'));
 createZip(src, path.resolve('prayer-focus-v2.0.0.zip'));
 if (!fs.existsSync(path.resolve('public'))) {
   fs.mkdirSync(path.resolve('public'), { recursive: true });
 }
+createZip(src, path.resolve('public/prayer-focus-v2.1.0.zip'));
 createZip(src, path.resolve('public/prayer-focus-v2.0.0.zip'));

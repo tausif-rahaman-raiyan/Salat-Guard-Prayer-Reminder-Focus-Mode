@@ -183,6 +183,23 @@ function startLiveCountdown(schedule, settings = {}) {
         : `Time Window: ${winStr} (${limitLabel})`;
     }
 
+    // Present Salah / Current Window banner
+    const presentBanner = document.getElementById('present-prayer-banner');
+    const presentTitle = document.getElementById('present-prayer-title');
+    const presentRange = document.getElementById('present-prayer-time-range');
+    if (presentBanner && presentTitle && presentRange) {
+      if (nextInfo.current) {
+        const cur = nextInfo.current;
+        const curName = currentLang === 'bn' ? cur.name : cur.nameEn;
+        const curWin = currentLang === 'bn' ? toBengaliNumerals(cur.windowBn || '') : (cur.windowEn || '');
+        presentBanner.style.display = 'flex';
+        presentTitle.textContent = `${currentLang === 'bn' ? 'বর্তমান ওয়াক্ত:' : 'Present Window:'} ${curName}`;
+        presentRange.textContent = curWin;
+      } else {
+        presentBanner.style.display = 'none';
+      }
+    }
+
     // Highlight current active prayer in grid
     document.querySelectorAll('.grid-item').forEach((item) => {
       if (nextInfo.current && item.getAttribute('data-key') === nextInfo.current.key) {

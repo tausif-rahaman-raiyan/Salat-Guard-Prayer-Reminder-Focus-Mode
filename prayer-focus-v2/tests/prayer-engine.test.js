@@ -48,7 +48,25 @@ function runTests() {
   console.assert(nextInfo.next.nameEn !== undefined && nextInfo.next.name !== undefined, 'Bilingual names required');
   console.log(`✓ Test 7 Passed: Bilingual names present -> EN: ${nextInfo.next.nameEn}, BN: ${nextInfo.next.name}`);
 
-  console.log('--- ALL TEST SUITE CHECKS COMPLETED SUCCESSFULLY ---');
+  // Test 8: Verify Global City Autocomplete Module
+  import('../modules/cities.js').then(async ({ searchGlobalCities, POPULAR_CITIES }) => {
+    console.assert(POPULAR_CITIES.length > 20, 'POPULAR_CITIES must contain cities');
+    const chittagong = await searchGlobalCities('Chatt');
+    console.assert(chittagong.length > 0 && chittagong[0].name === 'Chattogram', 'City search should find Chattogram');
+    console.log('✓ Test 8 Passed: Global city search returns valid results for query');
+
+    // Test 9: Verify Current Window Calculation
+    console.assert('current' in nextInfo, 'calculateNextPrayer must return current window state');
+    console.log('✓ Test 9 Passed: Current ongoing prayer window property is properly exposed');
+
+    // Test 10: Manifest version check
+    const fs = await import('fs');
+    const manifest = JSON.parse(fs.readFileSync('./prayer-focus-v2/manifest.json', 'utf8'));
+    console.assert(manifest.version === '2.1.0', `Manifest version must be 2.1.0 (found ${manifest.version})`);
+    console.log('✓ Test 10 Passed: Manifest version is 2.1.0');
+
+    console.log('--- ALL TEST SUITE CHECKS COMPLETED SUCCESSFULLY ---');
+  });
 }
 
 runTests();

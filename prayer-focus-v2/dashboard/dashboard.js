@@ -11,6 +11,7 @@ import {
   clearActiveTimerState
 } from '../modules/quran-timer.js';
 import { renderMonthlyCalendar, renderDateDetails } from '../modules/calendar.js';
+import { searchGlobalCities } from '../modules/cities.js';
 
 let countdownTimer = null;
 let liveClockInterval = null;
@@ -38,6 +39,8 @@ const I18N = {
     syncOffline: "Offline Standard Schedule (Chattogram)",
     syncCache: "Stored Offline Schedule (Cached)",
     currentBadge: "Current Window",
+    presentWindow: "Current Window (Present Salah)",
+    presentSalahStatus: "Ongoing Now",
     prayed: "Prayed",
     missed: "Missed",
     prayerProgress: "Today's Prayer Progress",
@@ -85,7 +88,7 @@ const I18N = {
     labelDisplayName: "Your Name / Title",
     btnCancelSettings: "Cancel",
     btnSaveSettings: "Save Settings",
-    footerText: "Prayer Focus v2.0.0 • Preserves Chrome New Tab • Asia/Dhaka Timezone Calibrated"
+    footerText: "Prayer Focus v2.1.0 • Preserves Chrome New Tab • Asia/Dhaka Timezone Calibrated"
   },
   bn: {
     heroBadge: "আজকের ইসলামিক উপদেশ ও দিকনির্দেশনা",
@@ -98,6 +101,8 @@ const I18N = {
     syncOffline: "অফলাইন স্ট্যান্ডার্ড সময়সূচি (চট্টগ্রাম)",
     syncCache: "সংরক্ষিত অফলাইন সময়সূচি (ক্যাশ)",
     currentBadge: "বর্তমান ওয়াক্ত",
+    presentWindow: "বর্তমান ওয়াক্ত (চলমান সালাত)",
+    presentSalahStatus: "চলমান",
     prayed: "পড়েছি",
     missed: "ছুটেছে",
     prayerProgress: "দৈনিক সালাত অগ্রগতি",
@@ -145,7 +150,7 @@ const I18N = {
     labelDisplayName: "আপনার নাম / উপাধি",
     btnCancelSettings: "বাতিল",
     btnSaveSettings: "সংরক্ষণ করুন",
-    footerText: "Prayer Focus v2.0.0 • গুগল ক্রোমের অরিজিনাল New Tab সংরক্ষিত • Asia/Dhaka সময় অনুযায়ী গণনাকৃত"
+    footerText: "Prayer Focus v2.1.0 • গুগল ক্রোমের অরিজিনাল New Tab সংরক্ষিত • Asia/Dhaka সময় অনুযায়ী গণনাকৃত"
   }
 };
 
@@ -394,6 +399,7 @@ async function renderPrayerCards(schedule) {
     const limitLabel = dashboardLang === 'bn' ? (win.limitBn || '') : (win.limitEn || '');
 
     card.innerHTML = `
+      ${isCurrent ? `<div style="width: 100%; display: flex; justify-content: center;"><span class="current-window-badge">⚡ ${dict.currentBadge}</span></div>` : ''}
       <div>
         <div class="pc-name-bn">${pName}</div>
         <div class="pc-name-ar">${info.ar}</div>
@@ -461,6 +467,20 @@ function startBannerCountdown(schedule) {
     if (windowEl) {
       const displayWin = dashboardLang === 'bn' ? toBengaliNumerals(winStr) : winStr;
       windowEl.textContent = `${dict.timeLimitPrefix}: ${displayWin} (${limitLabel})`;
+    }
+
+    const presentEl = document.getElementById('banner-present-window');
+    if (presentEl) {
+      if (nextInfo.current) {
+        const cur = nextInfo.current;
+        const curName = dashboardLang === 'en' ? cur.nameEn : cur.name;
+        const curWin = dashboardLang === 'bn' ? toBengaliNumerals(cur.windowBn || '') : (cur.windowEn || '');
+        const curLimit = dashboardLang === 'bn' ? cur.limitBn : cur.limitEn;
+        presentEl.style.display = 'inline-flex';
+        presentEl.innerHTML = `<span class="dot"></span> <strong>${dict.presentWindow}: ${curName} (${cur.arabicName})</strong> &nbsp;•&nbsp; <span>${curWin} (${curLimit})</span>`;
+      } else {
+        presentEl.style.display = 'none';
+      }
     }
 
     const remaining = Math.max(0, next.epoch - Date.now());
@@ -686,10 +706,76 @@ function setupSettingsModal() {
   const closeBtn = document.getElementById('btn-close-settings');
   const cancelBtn = document.getElementById('btn-cancel-settings');
   const saveBtn = document.getElementById('btn-save-settings');
+  const cityInput = document.getElementById('setting-city');
+  const dropdown = document.getElementById('city-suggestions-dropdown');
+  const spinner = document.getElementById('city-search-spinner');
+
+  let searchTimeout = null;
+  cityInput?.addEventListener('input', (e) => {
+    const q = e.target.value.trim();
+    if (searchTimeout) clearTimeout(searchTimeout);
+    if (q.length < 1) {
+      if (dropdown) dropdown.style.display = 'none';
+      return;
+    }
+
+    if (spinner) spinner.style.display = 'inline';
+    searchTimeout = setTimeout(async () => {
+      const results = await searchGlobalCities(q);
+      if (spinner) spinner.style.display = 'none';
+      if (!dropdown) return;
+
+      if (!results || results.length === 0) {
+        dropdown.innerHTML = `<div class="city-dropdown-item" style="color: #a7f3d0; font-size: 12px; padding: 10px;">${dashboardLang === 'bn' ? 'কোনো শহর পাওয়া যায়নি' : 'No matching city found'}</div>`;
+        dropdown.style.display = 'block';
+        return;
+      }
+
+      dropdown.innerHTML = results.map((c, idx) => `
+        <div class="city-dropdown-item" data-idx="${idx}">
+          <div>
+            <span class="city-name-text">${c.name}</span>
+            <span class="city-country-text">, ${c.country}</span>
+          </div>
+          <div class="city-coords-text">${c.latitude.toFixed(2)}°, ${c.longitude.toFixed(2)}° • ${c.timezone}</div>
+        </div>
+      `).join('');
+
+      dropdown.querySelectorAll('.city-dropdown-item').forEach((item) => {
+        item.addEventListener('click', () => {
+          const idx = parseInt(item.getAttribute('data-idx'), 10);
+          const selected = results[idx];
+          if (selected) {
+            cityInput.value = `${selected.name}, ${selected.country}`;
+            document.getElementById('setting-lat').value = selected.latitude;
+            document.getElementById('setting-lng').value = selected.longitude;
+            if (document.getElementById('setting-tz')) {
+              document.getElementById('setting-tz').value = selected.timezone;
+            }
+          }
+          dropdown.style.display = 'none';
+        });
+      });
+
+      dropdown.style.display = 'block';
+    }, 250);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!cityInput?.contains(e.target) && !dropdown?.contains(e.target)) {
+      if (dropdown) dropdown.style.display = 'none';
+    }
+  });
 
   openBtn?.addEventListener('click', openSettingsModal);
-  closeBtn?.addEventListener('click', () => modal.style.display = 'none');
-  cancelBtn?.addEventListener('click', () => modal.style.display = 'none');
+  closeBtn?.addEventListener('click', () => {
+    modal.style.display = 'none';
+    if (dropdown) dropdown.style.display = 'none';
+  });
+  cancelBtn?.addEventListener('click', () => {
+    modal.style.display = 'none';
+    if (dropdown) dropdown.style.display = 'none';
+  });
 
   saveBtn?.addEventListener('click', async () => {
     const city = document.getElementById('setting-city').value;

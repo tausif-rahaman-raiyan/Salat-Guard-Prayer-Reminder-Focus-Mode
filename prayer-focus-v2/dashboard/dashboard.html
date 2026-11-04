@@ -59,6 +59,7 @@
           <div class="banner-prayer-name" id="banner-prayer-name">Prayer</div>
           <div class="banner-prayer-time" id="banner-prayer-time">Starts at: --:--</div>
           <div class="banner-prayer-window" id="banner-prayer-window" style="font-size: 13px; color: #a7f3d0; margin-top: 4px; font-weight: 600;">Time Limit: --:--</div>
+          <div id="banner-present-window" class="present-salah-banner" style="display: none;"></div>
         </div>
         <div class="banner-right">
           <div class="countdown-title" id="label-countdown-title">Time Remaining Until Adhan</div>
@@ -163,8 +164,12 @@
           <div class="settings-group">
             <h4 id="label-loc-group">Location & Timezone</h4>
             <div class="form-row">
-              <label id="label-city">City Name</label>
-              <input type="text" id="setting-city" class="form-input">
+              <label id="label-city">City Name (Search Any City Worldwide)</label>
+              <div class="city-search-container">
+                <input type="text" id="setting-city" class="form-input" placeholder="Type city name (e.g. Chattogram, London, Dubai, New York)..." autocomplete="off">
+                <span class="city-search-spinner" id="city-search-spinner">⏳</span>
+                <div id="city-suggestions-dropdown" class="city-dropdown" style="display: none;"></div>
+              </div>
             </div>
             <div class="form-grid-2">
               <div class="form-row">
@@ -278,7 +283,7 @@
     </div>
 
     <footer class="dashboard-footer">
-      <p id="footer-text">Prayer Focus v2.0.0 • Preserves Chrome New Tab • Asia/Dhaka Timezone Calibrated</p>
+      <p id="footer-text">Prayer Focus v2.1.0 • Preserves Chrome New Tab • Asia/Dhaka Timezone Calibrated</p>
     </footer>
 
   </div>

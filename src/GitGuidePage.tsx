@@ -169,64 +169,64 @@ jobs:
         />
       </div>
 
-      {/* Troubleshooting 1: GitHub Pages 404 Error */}
-      <div className="bg-rose-950/40 border border-rose-500/40 rounded-3xl p-7 space-y-4">
+      {/* Troubleshooting 1: main.tsx 404 / Blank Screen */}
+      <div className="bg-red-950/40 border border-red-500/50 rounded-3xl p-7 space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-2.5">
-            <AlertCircle className="w-6 h-6 text-rose-400 shrink-0" />
-            <h2 className="text-lg font-bold text-rose-200">
-              {isEn ? 'Fix: "Failed to create deployment (status: 404) on GitHub Pages"' : 'সমাধান: GitHub Pages-এ "Failed to create deployment (status: 404)"'}
+            <AlertCircle className="w-6 h-6 text-red-400 shrink-0" />
+            <h2 className="text-lg font-bold text-red-200">
+              {isEn ? 'Fix: "main.tsx 404 error / Blank White Screen on GitHub Pages"' : 'সমাধান: GitHub Pages-এ "main.tsx 404 error" ও সাদা স্ক্রিন'}
             </h2>
           </div>
           <a
             href="https://github.com/tausif-rahaman-raiyan/Salat-Guard-Prayer-Reminder-Focus-Mode/settings/pages"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-400/40 transition"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-red-500/20 hover:bg-red-500/30 text-red-200 border border-red-400/40 transition"
           >
             <span>{isEn ? 'Open Pages Settings' : 'পেইজেস সেটিংস খুলুন'}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
 
-        <div className="text-xs md:text-sm text-rose-100/90 leading-relaxed space-y-3">
+        <div className="text-xs md:text-sm text-red-100/90 leading-relaxed space-y-3">
+          <p className="bg-black/50 p-3 rounded-xl border border-red-500/20 font-mono text-xs text-red-300">
+            Console error: <code>main.tsx 404 script Salat-Guard-Prayer-Reminder-Focus-Mode/:65</code>
+          </p>
           <p>
             {isEn
-              ? 'This 404 error happens because by default GitHub Pages expects branch deployment. You need to enable "GitHub Actions" as the deployment source.'
-              : 'গিটহাবে ডিফল্টভাবে GitHub Pages সক্রিয় থাকে না অথবা "Deploy from a branch" মোডে থাকে, যার কারণে Actions থেকে ডিপ্লয় করার সময় 404 নট ফাউন্ড ত্রুটি দেখায়।'}
+              ? 'Why this happens: Your GitHub repository is currently serving the raw source code from the "main" branch root instead of the compiled production build! Browsers cannot execute raw .tsx files directly.'
+              : 'এটি কেন ঘটে: আপনার GitHub Pages বর্তমানে মূল "main" ব্রাঞ্চের আনকম্পাইল্ড সোর্স কোড সার্ভ করছে (যেখানে main.tsx রয়েছে)। ব্রাউজার সরাসরি TypeScript (.tsx) ফাইল রান করতে পারে না, এর জন্য বিল্ট জাভাস্ক্রিপ্ট বান্ডেল প্রয়োজন।'}
           </p>
 
-          <div className="bg-black/60 border border-rose-500/30 rounded-xl p-4 text-xs space-y-2">
-            <div className="font-bold text-white flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-rose-500/30 text-rose-300 inline-flex items-center justify-center text-[11px]">1</span>
-              <span>{isEn ? 'Open Repository Settings > Pages' : 'GitHub রিপোজিটরির Settings > Pages-এ যান'}:</span>
+          <div className="bg-black/60 border border-red-500/30 rounded-xl p-4 text-xs space-y-3">
+            <div className="font-bold text-emerald-400 text-sm">
+              {isEn ? 'Choose ONE of these two easy fixes:' : 'নিচের যে কোনো একটি সমাধান বেছে নিন:'}
             </div>
-            <p className="text-emerald-300 font-mono text-[11px] pl-7">
-              https://github.com/tausif-rahaman-raiyan/Salat-Guard-Prayer-Reminder-Focus-Mode/settings/pages
-            </p>
 
-            <div className="font-bold text-white flex items-center gap-2 pt-1">
-              <span className="w-5 h-5 rounded-full bg-rose-500/30 text-rose-300 inline-flex items-center justify-center text-[11px]">2</span>
-              <span>{isEn ? 'Change Source under "Build and deployment":' : '"Build and deployment"-এর নিচে Source পরিবর্তন করুন'}:</span>
+            {/* Method A */}
+            <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-500/30 space-y-1.5">
+              <div className="font-bold text-emerald-300">
+                {isEn ? 'Option A (Recommended): Switch to GitHub Actions' : 'পদ্ধতি ১ (সেরা উপায়): GitHub Actions নির্বাচন করুন'}
+              </div>
+              <p className="text-emerald-200/90 text-xs">
+                1. Go to <a href="https://github.com/tausif-rahaman-raiyan/Salat-Guard-Prayer-Reminder-Focus-Mode/settings/pages" target="_blank" rel="noopener noreferrer" className="underline font-bold text-white">Repository Settings ➔ Pages</a><br />
+                2. Under <strong>Build and deployment</strong> ➔ <strong>Source</strong>, select <strong className="text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/40">GitHub Actions</strong>.<br />
+                3. Go to the Actions tab and click <strong>"Re-run all jobs"</strong>. The website will immediately load perfectly!
+              </p>
             </div>
-            <p className="text-rose-200 pl-7">
-              {isEn ? 'Click the ' : 'ড্রপডাউনে ক্লিক করে '}
-              <strong className="text-amber-300">"Deploy from a branch"</strong>
-              {isEn ? ' dropdown and change it to ' : ' পরিবর্তন করে '}
-              <strong className="text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/40">GitHub Actions</strong>
-              {isEn ? '.' : ' নির্বাচন করুন।'}
-            </p>
 
-            <div className="font-bold text-white flex items-center gap-2 pt-1">
-              <span className="w-5 h-5 rounded-full bg-rose-500/30 text-rose-300 inline-flex items-center justify-center text-[11px]">3</span>
-              <span>{isEn ? 'Re-run Failed Workflow:' : 'ওয়ার্কফ্লোটি পুনরায় চালান'}:</span>
+            {/* Method B */}
+            <div className="p-3 bg-blue-950/60 rounded-xl border border-blue-500/30 space-y-1.5">
+              <div className="font-bold text-blue-300">
+                {isEn ? 'Option B: Keep "Deploy from a branch", but select "gh-pages" branch' : 'পদ্ধতি ২: "Deploy from a branch" রেখে "gh-pages" ব্রাঞ্চ সিলেক্ট করুন'}
+              </div>
+              <p className="text-blue-200/90 text-xs">
+                1. Go to <a href="https://github.com/tausif-rahaman-raiyan/Salat-Guard-Prayer-Reminder-Focus-Mode/settings/pages" target="_blank" rel="noopener noreferrer" className="underline font-bold text-white">Repository Settings ➔ Pages</a><br />
+                2. If Source is <strong>"Deploy from a branch"</strong>, change the Branch dropdown from <code>main</code> to <strong className="text-blue-300 bg-blue-950 px-2 py-0.5 rounded border border-blue-500/40">gh-pages</strong> and folder <code>/ (root)</code>.<br />
+                3. Click <strong>Save</strong>. The compiled build from <code>dist/</code> is hosted on <code>gh-pages</code>, so the 404 disappears instantly!
+              </p>
             </div>
-            <p className="text-emerald-200 pl-7">
-              {isEn
-                ? 'Go to Actions tab, click "Re-run all jobs" or push your code. The deployment will immediately succeed and your live website will be live at: '
-                : 'Actions ট্যাবে গিয়ে "Re-run all jobs"-এ ক্লিক করুন অথবা কোড পুশ করুন। সাথে সাথে ওয়েবসাইটটি লাইভ হবে: '}
-              <span className="text-emerald-400 font-mono">https://tausif-rahaman-raiyan.github.io/Salat-Guard-Prayer-Reminder-Focus-Mode/</span>
-            </p>
           </div>
         </div>
       </div>

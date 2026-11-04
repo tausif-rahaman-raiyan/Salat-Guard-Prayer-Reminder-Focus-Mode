@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Prayer Focus – Pray • Focus • Grow",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Protect your five daily prayers with automatic prayer reminders, intentional focus mode, Quran reading timer, and habit tracking. Preserves Chrome New Tab.",
   "permissions": [
     "alarms",

@@ -4,7 +4,7 @@ import { PRAYER_NAMES } from './prayer-api.js';
 
 let selectedDate = getDhakaDateString();
 
-export async function renderMonthlyCalendar(containerEl, year, month, onSelectDateCallback) {
+export async function renderMonthlyCalendar(containerEl, year, month, onSelectDateCallback, lang = 'en') {
   if (!containerEl) return;
   containerEl.innerHTML = '';
 
@@ -35,7 +35,7 @@ export async function renderMonthlyCalendar(containerEl, year, month, onSelectDa
     // Day number
     const numEl = document.createElement('span');
     numEl.className = 'day-number';
-    numEl.textContent = toBengaliNumerals(day);
+    numEl.textContent = lang === 'bn' ? toBengaliNumerals(day) : String(day);
     cell.appendChild(numEl);
 
     // 5 prayer dots
@@ -57,7 +57,7 @@ export async function renderMonthlyCalendar(containerEl, year, month, onSelectDa
       document.querySelectorAll('.cal-day-cell').forEach((c) => c.classList.remove('is-selected'));
       cell.classList.add('is-selected');
       if (onSelectDateCallback) {
-        onSelectDateCallback(dayStr, rec);
+        onSelectDateCallback(dayStr, rec, lang);
       }
     };
 

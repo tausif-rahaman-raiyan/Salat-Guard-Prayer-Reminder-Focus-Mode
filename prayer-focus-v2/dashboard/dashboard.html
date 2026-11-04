@@ -58,6 +58,7 @@
           <span class="banner-label" id="label-next-prayer-banner">Next Prayer</span>
           <div class="banner-prayer-name" id="banner-prayer-name">Prayer</div>
           <div class="banner-prayer-time" id="banner-prayer-time">Starts at: --:--</div>
+          <div class="banner-prayer-window" id="banner-prayer-window" style="font-size: 13px; color: #a7f3d0; margin-top: 4px; font-weight: 600;">Time Limit: --:--</div>
         </div>
         <div class="banner-right">
           <div class="countdown-title" id="label-countdown-title">Time Remaining Until Adhan</div>
@@ -68,11 +69,11 @@
       <!-- 3. Five Daily Prayers Cards with ACTUAL Completion Actions -->
       <section class="section-container">
         <div class="section-header">
-          <h2 id="label-five-prayers">5 Daily Prayers Schedule</h2>
+          <h2 id="label-five-prayers">5 Daily Prayers Schedule & Limits</h2>
           <div class="sync-status" id="sync-info">Sync Status: Checking...</div>
         </div>
         <div class="prayer-cards-row" id="prayer-cards-container">
-          <!-- Dynamically populated 5 cards -->
+          <!-- Dynamically populated 5 cards with time limits -->
         </div>
       </section>
 
@@ -130,18 +131,18 @@
       <section class="card calendar-card">
         <div class="calendar-header-bar">
           <div>
-            <h3>মাসিক সালাত ক্যালেন্ডার ও রেকর্ড</h3>
-            <p class="calendar-sub">আপনার বাস্তব সংরক্ষিত সালাতের পরিসংখ্যান (Asia/Dhaka)</p>
+            <h3 id="label-cal-title">Monthly Prayer Calendar & History</h3>
+            <p class="calendar-sub" id="label-cal-sub">Actual recorded prayer history in Asia/Dhaka time</p>
           </div>
           <div class="calendar-nav">
-            <button class="cal-nav-btn" id="cal-prev">◀ পূর্ববর্তী মাস</button>
-            <span class="cal-current-label" id="cal-current-label">নভেম্বর ২০২৬</span>
-            <button class="cal-nav-btn" id="cal-next">পরবর্তী মাস ▶</button>
+            <button class="cal-nav-btn" id="cal-prev">◀ Prev Month</button>
+            <span class="cal-current-label" id="cal-current-label">November 2026</span>
+            <button class="cal-nav-btn" id="cal-next">Next Month ▶</button>
           </div>
         </div>
 
-        <div class="calendar-grid-header">
-          <span>রবি</span><span>সোম</span><span>মঙ্গল</span><span>বুধ</span><span>বৃহ</span><span>শুক্র</span><span>শনি</span>
+        <div class="calendar-grid-header" id="calendar-grid-header-row">
+          <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
         </div>
         <div class="calendar-days-grid" id="calendar-days-container">
           <!-- Calendar cells rendered by calendar.js -->
@@ -154,63 +155,63 @@
     <div class="modal-overlay" id="settings-modal" style="display: none;">
       <div class="modal-dialog">
         <div class="modal-header">
-          <h3>সেটিংস ও কনফিগারেশন</h3>
+          <h3 id="label-modal-title">Settings & Configuration</h3>
           <button class="modal-close" id="btn-close-settings">✕</button>
         </div>
         <div class="modal-body">
           
           <div class="settings-group">
-            <h4>অবস্থান ও টাইমজোন</h4>
+            <h4 id="label-loc-group">Location & Timezone</h4>
             <div class="form-row">
-              <label>শহরের নাম</label>
+              <label id="label-city">City Name</label>
               <input type="text" id="setting-city" class="form-input">
             </div>
             <div class="form-grid-2">
               <div class="form-row">
-                <label>অক্ষাংশ (Latitude)</label>
+                <label id="label-lat">Latitude</label>
                 <input type="number" step="0.0001" id="setting-lat" class="form-input">
               </div>
               <div class="form-row">
-                <label>দ্রাঘিমাংশ (Longitude)</label>
+                <label id="label-lng">Longitude</label>
                 <input type="number" step="0.0001" id="setting-lng" class="form-input">
               </div>
             </div>
             <div class="form-row">
-              <label>টাইমজোন</label>
+              <label id="label-tz">Timezone</label>
               <input type="text" id="setting-tz" class="form-input" disabled value="Asia/Dhaka">
             </div>
           </div>
 
           <div class="settings-group">
-            <h4>ঘড়ির ফরম্যাট ও সময় সমন্বয় (Time Format & Adjustments)</h4>
+            <h4 id="label-format-group">Time Format & Adjustments</h4>
             <div class="form-row">
-              <label>সময় প্রদর্শনের ফরম্যাট</label>
+              <label id="label-format">Time Display Format</label>
               <select id="setting-time-format" class="form-input">
                 <option value="12h">12-Hour Format (e.g. 5:15 PM)</option>
                 <option value="24h">24-Hour Format (e.g. 17:15)</option>
               </select>
             </div>
             <div class="form-row">
-              <label>স্থায়ী ওয়াক্ত সময় পরিবর্তন (মিনিট - সব দিনের জন্য প্রযোজ্য)</label>
+              <label id="label-offsets">Permanent Prayer Adjustments (Minutes - all days)</label>
               <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; text-align: center;">
                 <div>
-                  <span style="font-size: 11px; display: block; color: #a7f3d0;">ফজর</span>
+                  <span id="offset-name-fajr" style="font-size: 11px; display: block; color: #a7f3d0;">Fajr</span>
                   <input type="number" id="offset-fajr" class="form-input" style="padding: 6px 2px; text-align: center;" value="0">
                 </div>
                 <div>
-                  <span style="font-size: 11px; display: block; color: #a7f3d0;">যোহর</span>
+                  <span id="offset-name-dhuhr" style="font-size: 11px; display: block; color: #a7f3d0;">Dhuhr</span>
                   <input type="number" id="offset-dhuhr" class="form-input" style="padding: 6px 2px; text-align: center;" value="0">
                 </div>
                 <div>
-                  <span style="font-size: 11px; display: block; color: #a7f3d0;">আসর</span>
+                  <span id="offset-name-asr" style="font-size: 11px; display: block; color: #a7f3d0;">Asr</span>
                   <input type="number" id="offset-asr" class="form-input" style="padding: 6px 2px; text-align: center;" value="0">
                 </div>
                 <div>
-                  <span style="font-size: 11px; display: block; color: #a7f3d0;">মাগরিব</span>
+                  <span id="offset-name-maghrib" style="font-size: 11px; display: block; color: #a7f3d0;">Maghrib</span>
                   <input type="number" id="offset-maghrib" class="form-input" style="padding: 6px 2px; text-align: center;" value="0">
                 </div>
                 <div>
-                  <span style="font-size: 11px; display: block; color: #a7f3d0;">এশা</span>
+                  <span id="offset-name-isha" style="font-size: 11px; display: block; color: #a7f3d0;">Isha</span>
                   <input type="number" id="offset-isha" class="form-input" style="padding: 6px 2px; text-align: center;" value="0">
                 </div>
               </div>
@@ -218,11 +219,11 @@
           </div>
 
           <div class="settings-group">
-            <h4>সালাতের হিসাব পদ্ধতি</h4>
+            <h4 id="label-calc-group">Calculation Method</h4>
             <div class="form-row">
-              <label>পদ্ধতি (Calculation Method)</label>
+              <label id="label-method">Calculation Method</label>
               <select id="setting-method" class="form-input">
-                <option value="1">University of Islamic Sciences, Karachi (বাংলাদেশ ও উপমহাদেশ)</option>
+                <option value="1">University of Islamic Sciences, Karachi (Bangladesh & Subcontinent)</option>
                 <option value="4">Umm Al-Qura University, Makkah</option>
                 <option value="3">Muslim World League (MWL)</option>
                 <option value="2">Islamic Society of North America (ISNA)</option>
@@ -230,54 +231,54 @@
               </select>
             </div>
             <div class="form-row">
-              <label>আসর মাযহাব (Juristic Method)</label>
+              <label id="label-asr">Asr Juristic Method</label>
               <select id="setting-asr" class="form-input">
-                <option value="1">হানাফি (Hanafi - আসর দেরিতে)</option>
-                <option value="0">শাফি, মালিকি, হাম্বলি (Standard)</option>
+                <option value="1">Hanafi (Later Asr)</option>
+                <option value="0">Shafi'i, Maliki, Hanbali (Standard)</option>
               </select>
             </div>
           </div>
 
           <div class="settings-group">
-            <h4>রিমাইন্ডার ও ফোকাস মোড</h4>
+            <h4 id="label-remind-group">Reminders & Focus Mode</h4>
             <div class="form-row checkbox-row">
               <input type="checkbox" id="setting-notifications">
-              <label for="setting-notifications">ওয়াক্ত শুরু হলে স্বয়ংক্রিয় রিমাইন্ডার পপআপ ও অ্যালার্ম চালু রাখুন</label>
+              <label for="setting-notifications" id="label-notif-checkbox">Enable automatic reminder popup when prayer starts</label>
             </div>
             <div class="form-grid-2">
               <div class="form-row">
-                <label>ফোকাস সময় (মিনিট)</label>
+                <label id="label-focus-duration">Focus Duration (Minutes)</label>
                 <input type="number" min="1" max="60" id="setting-focus-duration" class="form-input">
               </div>
               <div class="form-row">
-                <label>স্নুজ সময় (মিনিট)</label>
+                <label id="label-snooze-duration">Snooze Duration (Minutes)</label>
                 <input type="number" min="1" max="30" id="setting-snooze-duration" class="form-input">
               </div>
             </div>
           </div>
 
           <div class="settings-group">
-            <h4>কোরআন লক্ষ্য ও পছন্দ</h4>
+            <h4 id="label-quran-group">Quran Goal & Preferences</h4>
             <div class="form-row">
-              <label>দৈনিক তিলাওয়াতের লক্ষ্য (মিনিট)</label>
+              <label id="label-quran-goal-setting">Daily Quran Goal (Minutes)</label>
               <input type="number" min="1" max="180" id="setting-quran-goal" class="form-input">
             </div>
             <div class="form-row">
-              <label>আপনার নাম / উপাধি</label>
+              <label id="label-display-name">Your Name / Title</label>
               <input type="text" id="setting-display-name" class="form-input">
             </div>
           </div>
 
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" id="btn-cancel-settings">বাতিল</button>
-          <button class="btn btn-primary" id="btn-save-settings">সংরক্ষণ করুন</button>
+          <button class="btn btn-secondary" id="btn-cancel-settings">Cancel</button>
+          <button class="btn btn-primary" id="btn-save-settings">Save Settings</button>
         </div>
       </div>
     </div>
 
     <footer class="dashboard-footer">
-      <p>Prayer Focus v2.0.0 • গুগল ক্রোমের অরিজিনাল New Tab সংরক্ষিত • Asia/Dhaka সময় অনুযায়ী গণনাকৃত</p>
+      <p id="footer-text">Prayer Focus v2.0.0 • Preserves Chrome New Tab • Asia/Dhaka Timezone Calibrated</p>
     </footer>
 
   </div>

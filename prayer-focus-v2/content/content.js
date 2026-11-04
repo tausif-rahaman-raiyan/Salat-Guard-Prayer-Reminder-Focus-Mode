@@ -42,22 +42,34 @@
       document.body.appendChild(overlayElement);
     }
 
+    const settings = state.settings || {};
+    const isBn = settings.language === 'bn';
+
     if (state.type === 'focus') {
       // Focus Session Active View
       const session = state.session || {};
-      const prayerName = PRAYER_NAMES_BN[session.prayerKey] || 'নামাজ';
+      const PRAYER_NAMES_EN = { fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' };
+      const prayerName = isBn ? (PRAYER_NAMES_BN[session.prayerKey] || 'ওয়াক্তের') : (PRAYER_NAMES_EN[session.prayerKey] || 'Prayer');
       
+      const title = isBn ? `${prayerName}-এর ফোকাস সেশন চলছে` : `${prayerName} Prayer Focus Session Active`;
+      const sub = isBn ? 'দুনিয়ার কাজ থেকে বিরতি নিয়ে নামাজ আদায় করুন।' : 'Take a quiet break from worldly distractions and perform your prayer.';
+      const quoteText = isBn ? '"কিয়ামতের দিন সর্বপ্রথম মানুষের সালাতের হিসাব নেওয়া হবে।"' : '"The first matter that the slave will be brought to account for on the Day of Judgment is the prayer."';
+      const quoteRef = isBn ? 'সুনান আত-তিরমিযী ৪১৩' : 'Sunan an-Nasa\'i 465';
+      const disclaimer = isBn 
+        ? 'এই উইন্ডোটি নামাজ ফোকাস চলাকালে সচল থাকবে। ব্রাউজারের সিস্টেম পেইজ বা সেটিংস ব্লক করা সম্ভব নয়।'
+        : 'This window remains active during prayer focus. Browser internal pages cannot be blocked.';
+
       overlayElement.innerHTML = `
         <div class="pf-card">
           <div class="pf-icon-container">🕌</div>
-          <h2 class="pf-title">${prayerName}-এর ফোকাস সেশন চলছে</h2>
-          <p class="pf-subtext">দুনিয়ার কাজ থেকে বিরতি নিয়ে নামাজ আদায় করুন।</p>
+          <h2 class="pf-title">${title}</h2>
+          <p class="pf-subtext">${sub}</p>
           <div class="pf-focus-timer" id="pf-countdown">--:--</div>
           <div class="pf-quote-box">
-            <p class="pf-quote-text">"কিয়ামতের দিন সর্বপ্রথম মানুষের সালাতের হিসাব নেওয়া হবে।"</p>
-            <p class="pf-quote-ref">সুনান আত-তিরমিযী ৪১৩</p>
+            <p class="pf-quote-text">${quoteText}</p>
+            <p class="pf-quote-ref">${quoteRef}</p>
           </div>
-          <p class="pf-disclaimer">এই উইন্ডোটি নামাজ ফোকাস চলাকালে সচল থাকবে। ব্রাউজারের সিস্টেম পেইজ বা সেটিংস ব্লক করা সম্ভব নয়।</p>
+          <p class="pf-disclaimer">${disclaimer}</p>
         </div>
       `;
 
@@ -72,7 +84,7 @@
         
         const el = document.getElementById('pf-countdown');
         if (el) {
-          el.textContent = toBengaliNumerals(formatted);
+          el.textContent = isBn ? toBengaliNumerals(formatted) : formatted;
         }
 
         if (remaining <= 0) {
@@ -87,9 +99,6 @@
     }
 
     const session = state.session || {};
-    const settings = state.settings || {};
-    const lang = settings.language || 'en';
-    const isBn = lang === 'bn';
 
     const PRAYER_NAMES_EN = {
       fajr: 'Fajr',

@@ -10,21 +10,51 @@
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <script>
-      // Defensive guard for browser extensions that attempt `window.fetch = ...` when window.fetch only has a getter
+      // Defensive guard for third-party browser extensions that attempt `window.fetch = ...` when native fetch has only a getter
       (function() {
+        // 1. Error suppressor for external extension scripts attempting to mutate fetch
+        window.addEventListener('error', function(event) {
+          if (event && event.message && event.message.indexOf('Cannot set property fetch') !== -1) {
+            if (typeof event.preventDefault === 'function') event.preventDefault();
+            if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+
         try {
-          var desc = Object.getOwnPropertyDescriptor(window, 'fetch') || Object.getOwnPropertyDescriptor(Object.getPrototypeOf(window), 'fetch');
-          if (desc && !desc.writable && !desc.set) {
-            var origFetch = window.fetch;
-            Object.defineProperty(window, 'fetch', {
-              configurable: true,
-              enumerable: true,
-              get: function() { return origFetch; },
-              set: function(fn) { origFetch = fn; }
-            });
+          var _origFetch = window.fetch;
+          var fetchDescriptor = {
+            configurable: true,
+            enumerable: true,
+            get: function() { return _origFetch; },
+            set: function(val) { _origFetch = val; }
+          };
+
+          // Redefine on window directly
+          try {
+            Object.defineProperty(window, 'fetch', fetchDescriptor);
+          } catch (_) {}
+
+          // Redefine on Window.prototype if accessible
+          try {
+            if (typeof Window !== 'undefined' && Window.prototype) {
+              Object.defineProperty(Window.prototype, 'fetch', fetchDescriptor);
+            }
+          } catch (_) {}
+
+          // Traverse prototype chain to unlock any read-only fetch descriptor
+          var proto = window;
+          while (proto) {
+            try {
+              var desc = Object.getOwnPropertyDescriptor(proto, 'fetch');
+              if (desc && (desc.configurable || !desc.set)) {
+                Object.defineProperty(proto, 'fetch', fetchDescriptor);
+              }
+            } catch (_) {}
+            proto = Object.getPrototypeOf(proto);
           }
         } catch (e) {
-          // Ignore if environment blocks descriptor redefine
+          // Silently handle environment sandbox limitations
         }
       })();
     </script>

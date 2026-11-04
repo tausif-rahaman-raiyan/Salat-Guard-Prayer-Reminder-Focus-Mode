@@ -75,6 +75,19 @@ export const TRANSLATIONS = {
     focusActiveSub: "Websites are held in focus mode so you can pray with peace of mind.",
     btnExitPreview: "Exit Preview",
     
+    // Prayer Windows & Limits
+    timeWindow: "Time Window",
+    timeLimit: "Time Limit",
+    limitUntil: "Until",
+    sunriseLabel: "Sunrise",
+    prayerNames: {
+      fajr: "Fajr",
+      dhuhr: "Dhuhr",
+      asr: "Asr",
+      maghrib: "Maghrib",
+      isha: "Isha"
+    },
+
     // Footer
     footerText: "Prayer Focus v2.0.0 • Preserves Chrome New Tab • Asia/Dhaka Timezone Calibrated"
   },
@@ -102,12 +115,25 @@ export const TRANSLATIONS = {
     countdownTitle: "ওয়াক্ত শুরু হতে সময় বাকি",
     
     // 5 Prayers Section
-    fiveDailyPrayers: "দৈনিক ৫ ওয়াক্ত সালাত",
+    fiveDailyPrayers: "দৈনিক ৫ ওয়াক্ত সালাত ও সময়সীমা",
     syncStatusLive: "সিঙ্ক সম্পন্ন (AlAdhan API)",
     syncStatusOffline: "অফলাইন স্ট্যান্ডার্ড সময়সূচি (চট্টগ্রাম)",
     currentPrayerBadge: "বর্তমান ওয়াক্ত",
     prayedBtn: "পড়েছি",
     missedBtn: "ছুটেছে",
+
+    // Prayer Windows & Limits
+    timeWindow: "সময়সীমা",
+    timeLimit: "সর্বোচ্চ সময়সীমা",
+    limitUntil: "পর্যন্ত",
+    sunriseLabel: "সূর্যোদয়",
+    prayerNames: {
+      fajr: "ফজর",
+      dhuhr: "যোহর",
+      asr: "আসর",
+      maghrib: "মাগরিব",
+      isha: "এশা"
+    },
     
     // Progress Card
     todayProgress: "দৈনিক সালাত অগ্রগতি",

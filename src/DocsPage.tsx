@@ -144,6 +144,68 @@ export const DocsPage: React.FC<DocsProps> = ({ lang }) => {
                   : 'দৈনিক পড়ার লক্ষ্য নির্ধারণ, স্টপওয়াচ টাইমার ও মোট তিলাওয়াত ট্র্যাকার। এটি আপনার অভ্যাস গঠনের ব্যক্তিগত সহায়ক।'}
               </p>
             </div>
+
+            {/* Prayer Windows & Jurisprudential Limits */}
+            <div className="bg-emerald-900/30 border border-emerald-400/30 p-5 rounded-2xl space-y-3">
+              <div className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-emerald-400" />
+                <span className="font-bold text-emerald-300 text-sm md:text-base">
+                  {isEn ? 'Prayer Windows & Time Limits (Shariah Boundaries)' : 'শরীয়তসম্মত ৫ ওয়াক্ত সালাতের সময়সীমা ও সমাপ্তির নিয়ম'}
+                </span>
+              </div>
+              <p className="text-xs md:text-sm text-emerald-200/90 leading-relaxed">
+                {isEn
+                  ? 'Each prayer has an exact permissible start and end window calculated from solar positions and Islamic jurisprudence:'
+                  : 'প্রত্যেক সালাতের জন্য সূর্যালোক ও ফিকহের আলোকে নির্দিষ্ট শুরু ও শেষ সময়সীমা স্বয়ংক্রিয়ভাবে হিসাব করা হয়:'}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 pt-2">
+                <div className="bg-black/40 border border-emerald-500/20 rounded-xl p-3 text-center">
+                  <div className="font-bold text-white text-xs">{isEn ? 'Fajr (الفجر)' : 'ফজর (الفجر)'}</div>
+                  <div className="text-[11px] text-emerald-300 font-medium mt-1">
+                    {isEn ? 'Starts at Dawn' : 'সুবেহ সাদিক শুরু'}
+                  </div>
+                  <div className="text-[10px] text-amber-300 font-semibold mt-0.5">
+                    {isEn ? 'Ends: At Sunrise' : 'সমাপ্তি: সূর্যোদয়'}
+                  </div>
+                </div>
+                <div className="bg-black/40 border border-emerald-500/20 rounded-xl p-3 text-center">
+                  <div className="font-bold text-white text-xs">{isEn ? 'Dhuhr (الظهر)' : 'যোহর (الظهر)'}</div>
+                  <div className="text-[11px] text-emerald-300 font-medium mt-1">
+                    {isEn ? 'Starts at Zawal' : 'সূর্য ঢলে পড়া শুরু'}
+                  </div>
+                  <div className="text-[10px] text-amber-300 font-semibold mt-0.5">
+                    {isEn ? 'Ends: At Asr Adhan' : 'সমাপ্তি: আসরের ওয়াক্ত'}
+                  </div>
+                </div>
+                <div className="bg-black/40 border border-emerald-500/20 rounded-xl p-3 text-center">
+                  <div className="font-bold text-white text-xs">{isEn ? 'Asr (العصر)' : 'আসর (العصر)'}</div>
+                  <div className="text-[11px] text-emerald-300 font-medium mt-1">
+                    {isEn ? 'Starts at Shadow Limit' : 'ছায়া দ্বিগুণ/একগুণ'}
+                  </div>
+                  <div className="text-[10px] text-amber-300 font-semibold mt-0.5">
+                    {isEn ? 'Ends: At Sunset (Maghrib)' : 'সমাপ্তি: সূর্যাস্ত (মাগরিব)'}
+                  </div>
+                </div>
+                <div className="bg-black/40 border border-emerald-500/20 rounded-xl p-3 text-center">
+                  <div className="font-bold text-white text-xs">{isEn ? 'Maghrib (المغرب)' : 'মাগরিব (المغرب)'}</div>
+                  <div className="text-[11px] text-emerald-300 font-medium mt-1">
+                    {isEn ? 'Starts at Sunset' : 'সূর্যাস্তের পরপরই'}
+                  </div>
+                  <div className="text-[10px] text-amber-300 font-semibold mt-0.5">
+                    {isEn ? 'Ends: At Isha Twilight' : 'সমাপ্তি: এশার ওয়াক্ত'}
+                  </div>
+                </div>
+                <div className="bg-black/40 border border-emerald-500/20 rounded-xl p-3 text-center">
+                  <div className="font-bold text-white text-xs">{isEn ? 'Isha (العشاء)' : 'এশা (العشاء)'}</div>
+                  <div className="text-[11px] text-emerald-300 font-medium mt-1">
+                    {isEn ? 'Starts after Twilight' : 'লালিমা দূর হলে শুরু'}
+                  </div>
+                  <div className="text-[10px] text-amber-300 font-semibold mt-0.5">
+                    {isEn ? 'Ends: Midnight / Fajr' : 'সমাপ্তি: মধ্যরাত / ফজর'}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

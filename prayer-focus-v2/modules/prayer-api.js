@@ -130,6 +130,64 @@ export function formatDisplayTime(timeStr, format = '12h') {
 }
 
 /**
+ * Calculates accurate prayer start and end windows (time limits) based on Islamic jurisprudence
+ */
+export function getPrayerWindows(schedule, offsets = {}, format = '12h') {
+  if (!schedule || !schedule.timings) return {};
+  const fajrRaw = applyTimeOffset(schedule.timings.fajr, offsets.fajr || 0);
+  const sunriseRaw = schedule.sunrise ? schedule.sunrise.split(' ')[0] : '06:05';
+  const dhuhrRaw = applyTimeOffset(schedule.timings.dhuhr, offsets.dhuhr || 0);
+  const asrRaw = applyTimeOffset(schedule.timings.asr, offsets.asr || 0);
+  const maghribRaw = applyTimeOffset(schedule.timings.maghrib, offsets.maghrib || 0);
+  const ishaRaw = applyTimeOffset(schedule.timings.isha, offsets.isha || 0);
+
+  const fmt = (t) => formatDisplayTime(t, format);
+
+  return {
+    fajr: {
+      start: fmt(fajrRaw),
+      end: fmt(sunriseRaw),
+      limitEn: `Until Sunrise (${fmt(sunriseRaw)})`,
+      limitBn: `সূর্যোদয় (${fmt(sunriseRaw)}) পর্যন্ত`,
+      windowEn: `${fmt(fajrRaw)} – ${fmt(sunriseRaw)}`,
+      windowBn: `${fmt(fajrRaw)} – ${fmt(sunriseRaw)}`
+    },
+    dhuhr: {
+      start: fmt(dhuhrRaw),
+      end: fmt(asrRaw),
+      limitEn: `Until Asr (${fmt(asrRaw)})`,
+      limitBn: `আসর (${fmt(asrRaw)}) পর্যন্ত`,
+      windowEn: `${fmt(dhuhrRaw)} – ${fmt(asrRaw)}`,
+      windowBn: `${fmt(dhuhrRaw)} – ${fmt(asrRaw)}`
+    },
+    asr: {
+      start: fmt(asrRaw),
+      end: fmt(maghribRaw),
+      limitEn: `Until Maghrib (${fmt(maghribRaw)})`,
+      limitBn: `মাগরিব (${fmt(maghribRaw)}) পর্যন্ত`,
+      windowEn: `${fmt(asrRaw)} – ${fmt(maghribRaw)}`,
+      windowBn: `${fmt(asrRaw)} – ${fmt(maghribRaw)}`
+    },
+    maghrib: {
+      start: fmt(maghribRaw),
+      end: fmt(ishaRaw),
+      limitEn: `Until Isha (${fmt(ishaRaw)})`,
+      limitBn: `এশা (${fmt(ishaRaw)}) পর্যন্ত`,
+      windowEn: `${fmt(maghribRaw)} – ${fmt(ishaRaw)}`,
+      windowBn: `${fmt(maghribRaw)} – ${fmt(ishaRaw)}`
+    },
+    isha: {
+      start: fmt(ishaRaw),
+      end: fmt(fajrRaw),
+      limitEn: `Until Fajr (${fmt(fajrRaw)})`,
+      limitBn: `ফজর (${fmt(fajrRaw)}) পর্যন্ত`,
+      windowEn: `${fmt(ishaRaw)} – ${fmt(fajrRaw)}`,
+      windowBn: `${fmt(ishaRaw)} – ${fmt(fajrRaw)}`
+    }
+  };
+}
+
+/**
  * Calculates current active prayer and next upcoming prayer, applying configured permanent offsets
  */
 export function calculateNextPrayer(schedule, offsets = {}) {
@@ -137,6 +195,7 @@ export function calculateNextPrayer(schedule, offsets = {}) {
 
   const now = Date.now();
   const dateStr = schedule.date;
+  const windows = getPrayerWindows(schedule, offsets);
 
   const prayerKeys = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
   const list = prayerKeys.map((key) => {
@@ -144,6 +203,7 @@ export function calculateNextPrayer(schedule, offsets = {}) {
     const offsetMin = offsets[key] || 0;
     const timeStr = applyTimeOffset(rawTime, offsetMin);
     const epoch = getPrayerEpoch(dateStr, timeStr);
+    const win = windows[key] || {};
     return {
       key,
       name: PRAYER_NAMES[key].bn,
@@ -152,7 +212,11 @@ export function calculateNextPrayer(schedule, offsets = {}) {
       time: timeStr,
       rawTime,
       offsetMin,
-      epoch
+      epoch,
+      limitEn: win.limitEn || '',
+      limitBn: win.limitBn || '',
+      windowEn: win.windowEn || '',
+      windowBn: win.windowBn || ''
     };
   });
 
@@ -193,6 +257,7 @@ export function calculateNextPrayer(schedule, offsets = {}) {
     current: currentPrayer,
     next: nextPrayer,
     all: list,
+    windows,
     timeRemainingMs: Math.max(0, nextPrayer.epoch - now)
   };
 }

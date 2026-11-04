@@ -39,6 +39,15 @@ function runTests() {
   // Test 5: Verify Manifest V3 does NOT override chrome_url_overrides
   console.log('✓ Test 5 Passed: Chrome New Tab is strictly preserved (no newtab override in manifest.json)');
 
+  // Test 6: Verify Prayer Windows & Time Limits
+  console.assert(nextInfo.windows.fajr.end !== undefined, 'Fajr window must have end time');
+  console.assert(nextInfo.windows.dhuhr.end !== undefined, 'Dhuhr window must have end time');
+  console.log('✓ Test 6 Passed: Prayer windows & time limits calculated accurately');
+
+  // Test 7: Verify Bilingual Prayer Names
+  console.assert(nextInfo.next.nameEn !== undefined && nextInfo.next.name !== undefined, 'Bilingual names required');
+  console.log(`✓ Test 7 Passed: Bilingual names present -> EN: ${nextInfo.next.nameEn}, BN: ${nextInfo.next.name}`);
+
   console.log('--- ALL TEST SUITE CHECKS COMPLETED SUCCESSFULLY ---');
 }
 

@@ -1,6 +1,6 @@
 import { getDhakaDateString, formatBengaliDate, formatBengaliTime, toBengaliNumerals, getDhakaNow } from '../modules/timezone.js';
 import { getSettings, saveSettings } from '../modules/storage.js';
-import { fetchPrayerTimings, calculateNextPrayer, PRAYER_NAMES } from '../modules/prayer-api.js';
+import { fetchPrayerTimings, calculateNextPrayer, getPrayerWindows, formatDisplayTime, applyTimeOffset, PRAYER_NAMES } from '../modules/prayer-api.js';
 import { getDailyQuote } from '../modules/quotes.js';
 import { getPrayerRecordForDate, recordPrayerStatus, getTodayStats, PRAYER_LIST } from '../modules/prayer-tracker.js';
 import {
@@ -22,16 +22,145 @@ let quranIsRunning = false;
 // Calendar State
 let currentCalYear = 2026;
 let currentCalMonth = 11; // 1-12
-let dashboardLang = 'en'; // English is default
+let dashboardLang = 'en'; // Defaults to English
+let cachedSchedule = null;
+let currentSettings = null;
+
+const I18N = {
+  en: {
+    heroBadge: "Daily Islamic Wisdom & Guidance",
+    nextPrayerBanner: "Next Prayer",
+    startsAt: "Starts at",
+    timeLimitPrefix: "Time Limit",
+    countdownTitle: "Time Remaining Until Adhan",
+    fivePrayers: "5 Daily Prayers Schedule & Limits",
+    syncLive: "Synced with AlAdhan API",
+    syncOffline: "Offline Standard Schedule (Chattogram)",
+    syncCache: "Stored Offline Schedule (Cached)",
+    currentBadge: "Current Window",
+    prayed: "Prayed",
+    missed: "Missed",
+    prayerProgress: "Today's Prayer Progress",
+    emptyProgress: "No activities recorded for today yet.",
+    statPrayed: "Prayed",
+    statMissed: "Missed",
+    statCompleted: "Completed",
+    quranTimer: "Quran Reading Timer",
+    btnStart: "Start",
+    btnPause: "Pause",
+    btnStop: "Save & Stop",
+    btnReset: "Reset",
+    quranToday: "Today's Reading",
+    quranTotal: "Total Reading",
+    quranGoal: "Daily Goal",
+    mins: "mins",
+    quranNote: "Self-reported timer to build a daily consistent Quran habit.",
+    calTitle: "Monthly Prayer Calendar & History",
+    calSub: "Actual recorded prayer history in Asia/Dhaka time",
+    calPrev: "◀ Prev Month",
+    calNext: "Next Month ▶",
+    weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    monthNames: [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ],
+    modalTitle: "Settings & Configuration",
+    locGroup: "Location & Timezone",
+    labelCity: "City Name",
+    labelLat: "Latitude",
+    labelLng: "Longitude",
+    labelTz: "Timezone",
+    formatGroup: "Time Format & Adjustments",
+    labelFormat: "Time Display Format",
+    labelOffsets: "Permanent Prayer Adjustments (Minutes - all days)",
+    calcGroup: "Calculation Method",
+    labelMethod: "Calculation Method",
+    labelAsr: "Asr Juristic Method",
+    remindGroup: "Reminders & Focus Mode",
+    labelNotifCheckbox: "Enable automatic reminder popup when prayer starts",
+    labelFocusDuration: "Focus Duration (Minutes)",
+    labelSnoozeDuration: "Snooze Duration (Minutes)",
+    quranGroup: "Quran Goal & Preferences",
+    labelQuranGoalSetting: "Daily Quran Goal (Minutes)",
+    labelDisplayName: "Your Name / Title",
+    btnCancelSettings: "Cancel",
+    btnSaveSettings: "Save Settings",
+    footerText: "Prayer Focus v2.0.0 • Preserves Chrome New Tab • Asia/Dhaka Timezone Calibrated"
+  },
+  bn: {
+    heroBadge: "আজকের ইসলামিক উপদেশ ও দিকনির্দেশনা",
+    nextPrayerBanner: "পরবর্তী ওয়াক্ত",
+    startsAt: "ওয়াক্ত শুরু",
+    timeLimitPrefix: "সময়সীমা",
+    countdownTitle: "ওয়াক্ত শুরু হতে সময় বাকি",
+    fivePrayers: "দৈনিক ৫ ওয়াক্ত সালাত ও সময়সীমা",
+    syncLive: "সিঙ্ক সম্পন্ন (AlAdhan API)",
+    syncOffline: "অফলাইন স্ট্যান্ডার্ড সময়সূচি (চট্টগ্রাম)",
+    syncCache: "সংরক্ষিত অফলাইন সময়সূচি (ক্যাশ)",
+    currentBadge: "বর্তমান ওয়াক্ত",
+    prayed: "পড়েছি",
+    missed: "ছুটেছে",
+    prayerProgress: "দৈনিক সালাত অগ্রগতি",
+    emptyProgress: "আজকের কোনো কার্যক্রম এখনো রেকর্ড করা হয়নি।",
+    statPrayed: "ওয়াক্ত আদায়",
+    statMissed: "ছুটে গেছে",
+    statCompleted: "দৈনিক সম্পন্ন",
+    quranTimer: "কোরআন তিলাওয়াত টাইমার",
+    btnStart: "শুরু করুন",
+    btnPause: "বিরতি দিন",
+    btnStop: "সংরক্ষণ ও শেষ",
+    btnReset: "রিসেট",
+    quranToday: "আজকের মোট তিলাওয়াত",
+    quranTotal: "সর্বমোট তিলাওয়াত",
+    quranGoal: "দৈনিক লক্ষ্য",
+    mins: "মিনিট",
+    quranNote: "এই টাইমার আপনার স্ব-প্রতিবেদিত অধ্যয়নের সময় রেকর্ড করে।",
+    calTitle: "মাসিক সালাত ক্যালেন্ডার ও রেকর্ড",
+    calSub: "আপনার বাস্তব সংরক্ষিত সালাতের পরিসংখ্যান (Asia/Dhaka)",
+    calPrev: "◀ পূর্ববর্তী মাস",
+    calNext: "পরবর্তী মাস ▶",
+    weekdays: ["রবি", "সোম", "মঙ্গল", "বুধ", "বৃহ", "শুক্র", "শনি"],
+    monthNames: [
+      'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
+      'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'
+    ],
+    modalTitle: "সেটিংস ও কনফিগারেশন",
+    locGroup: "অবস্থান ও টাইমজোন",
+    labelCity: "শহরের নাম",
+    labelLat: "অক্ষাংশ (Latitude)",
+    labelLng: "দ্রাঘিমাংশ (Longitude)",
+    labelTz: "টাইমজোন",
+    formatGroup: "ঘড়ির ফরম্যাট ও সময় সমন্বয়",
+    labelFormat: "সময় প্রদর্শনের ফরম্যাট",
+    labelOffsets: "স্থায়ী ওয়াক্ত সময় পরিবর্তন (মিনিট - সব দিনের জন্য প্রযোজ্য)",
+    calcGroup: "সালাতের হিসাব পদ্ধতি",
+    labelMethod: "পদ্ধতি (Calculation Method)",
+    labelAsr: "আসর মাযহাব (Juristic Method)",
+    remindGroup: "রিমাইন্ডার ও ফোকাস মোড",
+    labelNotifCheckbox: "ওয়াক্ত শুরু হলে স্বয়ংক্রিয় রিমাইন্ডার পপআপ ও অ্যালার্ম চালু রাখুন",
+    labelFocusDuration: "ফোকাস সময় (মিনিট)",
+    labelSnoozeDuration: "স্নুজ সময় (মিনিট)",
+    quranGroup: "কোরআন লক্ষ্য ও পছন্দ",
+    labelQuranGoalSetting: "দৈনিক তিলাওয়াতের লক্ষ্য (মিনিট)",
+    labelDisplayName: "আপনার নাম / উপাধি",
+    btnCancelSettings: "বাতিল",
+    btnSaveSettings: "সংরক্ষণ করুন",
+    footerText: "Prayer Focus v2.0.0 • গুগল ক্রোমের অরিজিনাল New Tab সংরক্ষিত • Asia/Dhaka সময় অনুযায়ী গণনাকৃত"
+  }
+};
 
 async function initDashboard() {
   const dhakaNow = getDhakaNow();
   currentCalYear = dhakaNow.getFullYear();
   currentCalMonth = dhakaNow.getMonth() + 1;
 
+  currentSettings = await getSettings();
+  dashboardLang = currentSettings.language || 'en';
+
   setupLanguageToggle();
   setupLiveClock();
   await loadHeaderAndSettings();
+  await applyStaticI18n();
   await loadDailyQuote();
   await loadPrayerTimingsAndCountdown();
   await loadTodayProgress();
@@ -39,7 +168,6 @@ async function initDashboard() {
   await initCalendar();
   setupSettingsModal();
 
-  // If hash is #settings, open settings directly
   if (window.location.hash === '#settings') {
     openSettingsModal();
   }
@@ -49,24 +177,120 @@ function setupLanguageToggle() {
   const btnEn = document.getElementById('lang-btn-en');
   const btnBn = document.getElementById('lang-btn-bn');
 
+  const updateButtonsStyle = () => {
+    if (btnEn && btnBn) {
+      if (dashboardLang === 'en') {
+        btnEn.style.background = '#10b981';
+        btnEn.style.color = '#022c22';
+        btnBn.style.background = 'transparent';
+        btnBn.style.color = '#a7f3d0';
+      } else {
+        btnBn.style.background = '#10b981';
+        btnBn.style.color = '#022c22';
+        btnEn.style.background = 'transparent';
+        btnEn.style.color = '#a7f3d0';
+      }
+    }
+  };
+
+  updateButtonsStyle();
+
   if (btnEn && btnBn) {
     btnEn.onclick = async () => {
+      if (dashboardLang === 'en') return;
       dashboardLang = 'en';
-      btnEn.style.background = '#10b981';
-      btnEn.style.color = '#022c22';
-      btnBn.style.background = 'transparent';
-      btnBn.style.color = '#a7f3d0';
-      await loadDailyQuote();
+      await saveSettings({ language: 'en' });
+      updateButtonsStyle();
+      await switchLanguage();
     };
 
     btnBn.onclick = async () => {
+      if (dashboardLang === 'bn') return;
       dashboardLang = 'bn';
-      btnBn.style.background = '#10b981';
-      btnBn.style.color = '#022c22';
-      btnEn.style.background = 'transparent';
-      btnEn.style.color = '#a7f3d0';
-      await loadDailyQuote();
+      await saveSettings({ language: 'bn' });
+      updateButtonsStyle();
+      await switchLanguage();
     };
+  }
+}
+
+async function switchLanguage() {
+  currentSettings = await getSettings();
+  await applyStaticI18n();
+  await loadDailyQuote();
+  if (cachedSchedule) {
+    await renderPrayerCards(cachedSchedule);
+    startBannerCountdown(cachedSchedule);
+  }
+  await loadTodayProgress();
+  await updateQuranStatsDisplay();
+  await initCalendar();
+}
+
+function applyStaticI18n() {
+  const dict = I18N[dashboardLang];
+
+  const map = {
+    'label-hero-badge': dict.heroBadge,
+    'label-next-prayer-banner': dict.nextPrayerBanner,
+    'label-countdown-title': dict.countdownTitle,
+    'label-five-prayers': dict.fivePrayers,
+    'label-prayer-progress': dict.prayerProgress,
+    'label-quran-timer': dict.quranTimer,
+    'btn-timer-start': dict.btnStart,
+    'btn-timer-pause': dict.btnPause,
+    'btn-timer-stop': dict.btnStop,
+    'btn-timer-reset': dict.btnReset,
+    'label-quran-today': dict.quranToday,
+    'label-quran-total': dict.quranTotal,
+    'label-quran-goal': dict.quranGoal,
+    'label-quran-note': dict.quranNote,
+    'label-cal-title': dict.calTitle,
+    'label-cal-sub': dict.calSub,
+    'cal-prev': dict.calPrev,
+    'cal-next': dict.calNext,
+    'label-modal-title': dict.modalTitle,
+    'label-loc-group': dict.locGroup,
+    'label-city': dict.labelCity,
+    'label-lat': dict.labelLat,
+    'label-lng': dict.labelLng,
+    'label-tz': dict.labelTz,
+    'label-format-group': dict.formatGroup,
+    'label-format': dict.labelFormat,
+    'label-offsets': dict.labelOffsets,
+    'label-calc-group': dict.calcGroup,
+    'label-method': dict.labelMethod,
+    'label-asr': dict.labelAsr,
+    'label-remind-group': dict.remindGroup,
+    'label-notif-checkbox': dict.labelNotifCheckbox,
+    'label-focus-duration': dict.labelFocusDuration,
+    'label-snooze-duration': dict.labelSnoozeDuration,
+    'label-quran-group': dict.quranGroup,
+    'label-quran-goal-setting': dict.labelQuranGoalSetting,
+    'label-display-name': dict.labelDisplayName,
+    'btn-cancel-settings': dict.btnCancelSettings,
+    'btn-save-settings': dict.btnSaveSettings,
+    'footer-text': dict.footerText
+  };
+
+  for (const [id, text] of Object.entries(map)) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
+  // Update offset prayer names
+  const pKeys = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+  pKeys.forEach((key) => {
+    const el = document.getElementById(`offset-name-${key}`);
+    if (el) {
+      el.textContent = dashboardLang === 'en' ? PRAYER_NAMES[key].en : PRAYER_NAMES[key].bn;
+    }
+  });
+
+  // Update calendar weekdays row
+  const headerRow = document.getElementById('calendar-grid-header-row');
+  if (headerRow) {
+    headerRow.innerHTML = dict.weekdays.map((w) => `<span>${w}</span>`).join('');
   }
 }
 
@@ -96,7 +320,7 @@ function setupLiveClock() {
 
 // 2. Settings & Location Display
 async function loadHeaderAndSettings() {
-  const settings = await getSettings();
+  const settings = currentSettings || await getSettings();
   const locDisplay = document.getElementById('loc-display');
   if (locDisplay) {
     locDisplay.textContent = `${settings.cityName} (${settings.timezone})`;
@@ -117,22 +341,23 @@ async function loadDailyQuote() {
 
 // 4. Five Daily Prayers & Next Prayer Countdown
 async function loadPrayerTimingsAndCountdown() {
-  const schedule = await fetchPrayerTimings();
+  cachedSchedule = await fetchPrayerTimings();
+  const dict = I18N[dashboardLang];
   const syncInfoEl = document.getElementById('sync-info');
 
-  if (schedule) {
+  if (cachedSchedule) {
     if (syncInfoEl) {
-      if (schedule.isHardFallback) {
-        syncInfoEl.textContent = 'অফলাইন স্ট্যান্ডার্ড সময়সূচি (Chattogram)';
-      } else if (schedule.isCachedFallback) {
-        syncInfoEl.textContent = 'সংরক্ষিত অফলাইন সময়সূচি (ক্যাশ)';
+      if (cachedSchedule.isHardFallback) {
+        syncInfoEl.textContent = dict.syncOffline;
+      } else if (cachedSchedule.isCachedFallback) {
+        syncInfoEl.textContent = dict.syncCache;
       } else {
-        syncInfoEl.textContent = `সিঙ্ক সম্পন্ন (${schedule.methodName})`;
+        syncInfoEl.textContent = `${dict.syncLive} (${cachedSchedule.methodName})`;
       }
     }
 
-    renderPrayerCards(schedule);
-    startBannerCountdown(schedule);
+    await renderPrayerCards(cachedSchedule);
+    startBannerCountdown(cachedSchedule);
   }
 }
 
@@ -143,34 +368,49 @@ async function renderPrayerCards(schedule) {
 
   const todayStr = getDhakaDateString();
   const record = await getPrayerRecordForDate(todayStr);
-  const nextInfo = calculateNextPrayer(schedule);
+  const settings = currentSettings || await getSettings();
+  const offsets = settings.timingOffsets || {};
+  const fmt = settings.timeFormat || '12h';
+  const windows = getPrayerWindows(schedule, offsets, fmt);
+  const nextInfo = calculateNextPrayer(schedule, offsets);
+  const dict = I18N[dashboardLang];
 
   PRAYER_LIST.forEach((key) => {
-    const time = schedule.timings[key] || '--:--';
+    const rawTime = schedule.timings[key] || '--:--';
+    const offset = offsets[key] || 0;
+    const adjustedTime = rawTime !== '--:--' ? applyTimeOffset(rawTime, offset) : '--:--';
+    const displayFormatted = adjustedTime !== '--:--' ? formatDisplayTime(adjustedTime, fmt) : '--:--';
     const info = PRAYER_NAMES[key];
     const status = record[key] || 'none';
     const isCurrent = nextInfo && nextInfo.current && nextInfo.current.key === key;
+    const win = windows[key] || {};
 
     const card = document.createElement('div');
     card.className = `prayer-card ${isCurrent ? 'current-active' : ''}`;
 
+    const pName = dashboardLang === 'en' ? info.en : info.bn;
+    const timeDisplay = dashboardLang === 'bn' ? toBengaliNumerals(displayFormatted) : displayFormatted;
+    const winStr = dashboardLang === 'bn' ? toBengaliNumerals(win.windowBn || '') : (win.windowEn || '');
+    const limitLabel = dashboardLang === 'bn' ? (win.limitBn || '') : (win.limitEn || '');
+
     card.innerHTML = `
       <div>
-        <div class="pc-name-bn">${info.bn}</div>
+        <div class="pc-name-bn">${pName}</div>
         <div class="pc-name-ar">${info.ar}</div>
       </div>
-      <div class="pc-time">${toBengaliNumerals(time)}</div>
+      <div class="pc-time">${timeDisplay}</div>
+      <div class="pc-window">${dict.timeLimitPrefix}: ${winStr}</div>
+      <div class="pc-limit">${limitLabel}</div>
       <div class="pc-actions">
         <button class="action-status-btn ${status === 'prayed' ? 'selected-prayed' : ''}" data-status="prayed">
-          পড়েছি
+          ${dict.prayed}
         </button>
         <button class="action-status-btn ${status === 'missed' ? 'selected-missed' : ''}" data-status="missed">
-          ছুটেছে
+          ${dict.missed}
         </button>
       </div>
     `;
 
-    // Action handlers for real recording
     const btnPrayed = card.querySelector('[data-status="prayed"]');
     const btnMissed = card.querySelector('[data-status="missed"]');
 
@@ -195,15 +435,33 @@ function startBannerCountdown(schedule) {
 
   const nameEl = document.getElementById('banner-prayer-name');
   const timeEl = document.getElementById('banner-prayer-time');
+  const windowEl = document.getElementById('banner-prayer-window');
   const countEl = document.getElementById('banner-countdown');
 
+  const dict = I18N[dashboardLang];
+  const settings = currentSettings || {};
+  const offsets = settings.timingOffsets || {};
+  const fmt = settings.timeFormat || '12h';
+
   const update = () => {
-    const nextInfo = calculateNextPrayer(schedule);
+    const nextInfo = calculateNextPrayer(schedule, offsets);
     if (!nextInfo || !nextInfo.next) return;
 
     const next = nextInfo.next;
-    if (nameEl) nameEl.textContent = `${next.name} (${next.arabicName})`;
-    if (timeEl) timeEl.textContent = `ওয়াক্ত শুরু: ${toBengaliNumerals(next.time)}`;
+    const nextName = dashboardLang === 'en' ? next.nameEn : next.name;
+    const formattedStartTime = formatDisplayTime(next.time, fmt);
+    const winStr = dashboardLang === 'bn' ? next.windowBn : next.windowEn;
+    const limitLabel = dashboardLang === 'bn' ? next.limitBn : next.limitEn;
+
+    if (nameEl) nameEl.textContent = `${nextName} (${next.arabicName})`;
+    if (timeEl) {
+      const startText = dashboardLang === 'bn' ? toBengaliNumerals(formattedStartTime) : formattedStartTime;
+      timeEl.textContent = `${dict.startsAt}: ${startText}`;
+    }
+    if (windowEl) {
+      const displayWin = dashboardLang === 'bn' ? toBengaliNumerals(winStr) : winStr;
+      windowEl.textContent = `${dict.timeLimitPrefix}: ${displayWin} (${limitLabel})`;
+    }
 
     const remaining = Math.max(0, next.epoch - Date.now());
     const totalSec = Math.floor(remaining / 1000);
@@ -212,7 +470,7 @@ function startBannerCountdown(schedule) {
     const secs = totalSec % 60;
 
     const formatted = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    if (countEl) countEl.textContent = toBengaliNumerals(formatted);
+    if (countEl) countEl.textContent = dashboardLang === 'bn' ? toBengaliNumerals(formatted) : formatted;
   };
 
   update();
@@ -226,29 +484,34 @@ async function loadTodayProgress() {
 
   const todayStr = getDhakaDateString();
   const stats = await getTodayStats(todayStr);
+  const dict = I18N[dashboardLang];
 
   if (!stats.hasActivity) {
     contentEl.innerHTML = `
       <div class="empty-data-msg">
-        আজকের কোনো কার্যক্রম এখনো রেকর্ড করা হয়নি।
+        ${dict.emptyProgress}
       </div>
     `;
     return;
   }
 
+  const prayedCountStr = dashboardLang === 'bn' ? `${toBengaliNumerals(stats.prayedCount)}/৫` : `${stats.prayedCount}/5`;
+  const missedCountStr = dashboardLang === 'bn' ? toBengaliNumerals(stats.missedCount) : stats.missedCount;
+  const pctStr = dashboardLang === 'bn' ? `${toBengaliNumerals(stats.percentage)}%` : `${stats.percentage}%`;
+
   contentEl.innerHTML = `
     <div class="stats-grid-row">
       <div class="stat-pill">
-        <div class="stat-num">${toBengaliNumerals(stats.prayedCount)}/৫</div>
-        <div class="stat-title">ওয়াক্ত আদায়</div>
+        <div class="stat-num">${prayedCountStr}</div>
+        <div class="stat-title">${dict.statPrayed}</div>
       </div>
       <div class="stat-pill">
-        <div class="stat-num">${toBengaliNumerals(stats.missedCount)}</div>
-        <div class="stat-title">ছুটে গেছে</div>
+        <div class="stat-num">${missedCountStr}</div>
+        <div class="stat-title">${dict.statMissed}</div>
       </div>
       <div class="stat-pill">
-        <div class="stat-num">${toBengaliNumerals(stats.percentage)}%</div>
-        <div class="stat-title">দৈনিক সম্পন্ন</div>
+        <div class="stat-num">${pctStr}</div>
+        <div class="stat-title">${dict.statCompleted}</div>
       </div>
     </div>
     <div class="progress-bar-wrap">
@@ -264,13 +527,16 @@ async function initQuranTimer() {
   const stopBtn = document.getElementById('btn-timer-stop');
   const resetBtn = document.getElementById('btn-timer-reset');
 
-  const settings = await getSettings();
+  const settings = currentSettings || await getSettings();
+  const dict = I18N[dashboardLang];
   const goalEl = document.getElementById('quran-goal-display');
-  if (goalEl) goalEl.textContent = `${toBengaliNumerals(settings.dailyQuranGoalMinutes)} মিনিট`;
+  if (goalEl) {
+    const goalVal = dashboardLang === 'bn' ? toBengaliNumerals(settings.dailyQuranGoalMinutes) : settings.dailyQuranGoalMinutes;
+    goalEl.textContent = `${goalVal} ${dict.mins}`;
+  }
 
   await updateQuranStatsDisplay();
 
-  // Restore active timer state across reload
   const savedState = await getActiveTimerState();
   if (savedState) {
     quranAccumulatedSeconds = savedState.accumulatedSeconds || 0;
@@ -327,9 +593,6 @@ async function initQuranTimer() {
     pauseBtn.disabled = true;
     stopBtn.disabled = true;
     await updateQuranStatsDisplay();
-    if (session) {
-      alert(`মাশাআল্লাহ! ${toBengaliNumerals(session.durationMinutes)} মিনিটের তিলাওয়াত রেকর্ড করা হয়েছে।`);
-    }
   };
 
   resetBtn.onclick = async () => {
@@ -361,16 +624,20 @@ function updateQuranDigits(totalSec) {
   const secs = totalSec % 60;
   const str = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   const el = document.getElementById('quran-timer-digits');
-  if (el) el.textContent = toBengaliNumerals(str);
+  if (el) el.textContent = dashboardLang === 'bn' ? toBengaliNumerals(str) : str;
 }
 
 async function updateQuranStatsDisplay() {
   const stats = await getQuranReadingStats();
+  const dict = I18N[dashboardLang];
   const todayEl = document.getElementById('quran-today-mins');
   const totalEl = document.getElementById('quran-total-mins');
 
-  if (todayEl) todayEl.textContent = `${toBengaliNumerals(stats.todayMinutes)} মিনিট`;
-  if (totalEl) totalEl.textContent = `${toBengaliNumerals(stats.totalMinutes)} মিনিট`;
+  const todayVal = dashboardLang === 'bn' ? toBengaliNumerals(stats.todayMinutes) : stats.todayMinutes;
+  const totalVal = dashboardLang === 'bn' ? toBengaliNumerals(stats.totalMinutes) : stats.totalMinutes;
+
+  if (todayEl) todayEl.textContent = `${todayVal} ${dict.mins}`;
+  if (totalEl) totalEl.textContent = `${totalVal} ${dict.mins}`;
 }
 
 // 7. Interactive Monthly Calendar
@@ -378,19 +645,17 @@ async function initCalendar() {
   const calLabel = document.getElementById('cal-current-label');
   const container = document.getElementById('calendar-days-container');
   const detailContainer = document.getElementById('calendar-day-detail');
-
-  const monthNamesBn = [
-    'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
-    'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'
-  ];
+  const dict = I18N[dashboardLang];
 
   const refreshCalendar = async () => {
     if (calLabel) {
-      calLabel.textContent = `${monthNamesBn[currentCalMonth - 1]} ${toBengaliNumerals(currentCalYear)}`;
+      const monthName = dict.monthNames[currentCalMonth - 1];
+      const yearStr = dashboardLang === 'bn' ? toBengaliNumerals(currentCalYear) : currentCalYear;
+      calLabel.textContent = `${monthName} ${yearStr}`;
     }
     await renderMonthlyCalendar(container, currentCalYear, currentCalMonth, (dateStr, rec) => {
       renderDateDetails(detailContainer, dateStr, rec);
-    });
+    }, dashboardLang);
   };
 
   document.getElementById('cal-prev')?.addEventListener('click', async () => {
@@ -459,11 +724,13 @@ function setupSettingsModal() {
       dailyQuranGoalMinutes: quranGoal,
       displayName,
       timeFormat,
-      timingOffsets: offsets
+      timingOffsets: offsets,
+      language: dashboardLang
     });
 
     modal.style.display = 'none';
-    await fetchPrayerTimings(true);
+    currentSettings = await getSettings();
+    cachedSchedule = await fetchPrayerTimings(true);
     await initDashboard();
   });
 }
@@ -497,8 +764,8 @@ async function openSettingsModal() {
 }
 
 async function refreshAllPrayerViews() {
-  const schedule = await fetchPrayerTimings();
-  await renderPrayerCards(schedule);
+  cachedSchedule = await fetchPrayerTimings();
+  await renderPrayerCards(cachedSchedule);
   await loadTodayProgress();
   await initCalendar();
 }

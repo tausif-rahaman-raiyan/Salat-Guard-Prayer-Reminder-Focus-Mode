@@ -35,6 +35,7 @@ import {
 import {
   fetchPrayerTimings,
   calculateNextPrayer,
+  getPrayerWindows,
   applyTimeOffset,
   formatDisplayTime,
   PRAYER_NAMES
@@ -286,8 +287,38 @@ export default function App() {
             </button>
           </div>
 
-          {/* Right Controls: Test overlay and Download (Language switch removed from website as requested) */}
-          <div className="flex items-center gap-3">
+          {/* Right Controls: Language Switcher, Test overlay, and Download */}
+          <div className="flex items-center gap-2.5">
+            {/* Bilingual Switcher */}
+            <div className="flex items-center bg-black/40 p-1 rounded-xl border border-emerald-500/20 text-xs">
+              <button
+                onClick={() => {
+                  setLang('en');
+                  const q = getDailyQuote(todayStr, 'en');
+                  setDailyQuote(q);
+                }}
+                className={`px-2.5 py-1 rounded-lg font-bold transition ${
+                  isEn ? 'bg-emerald-500 text-emerald-950 shadow-sm' : 'text-emerald-300 hover:text-white'
+                }`}
+                title="Switch to English"
+              >
+                EN
+              </button>
+              <button
+                onClick={() => {
+                  setLang('bn');
+                  const q = getDailyQuote(todayStr, 'bn');
+                  setDailyQuote(q);
+                }}
+                className={`px-2.5 py-1 rounded-lg font-bold transition ${
+                  !isEn ? 'bg-emerald-500 text-emerald-950 shadow-sm' : 'text-emerald-300 hover:text-white'
+                }`}
+                title="বাংলায় পরিবর্তন করুন"
+              >
+                বাংলা
+              </button>
+            </div>
+
             <button
               onClick={() => setShowSimulatedOverlay(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 border border-emerald-500/30 transition shadow-sm"
@@ -384,6 +415,15 @@ export default function App() {
                   <p className="text-sm text-emerald-200 mt-1 font-medium">
                     {t.startsAt}: {formatDisplayTime(nextPrayerInfo.next?.time, settings.timeFormat || '12h')}
                   </p>
+                  <div className="mt-2 text-xs font-semibold text-emerald-300 bg-emerald-950/60 border border-emerald-400/20 rounded-lg px-2.5 py-1 inline-flex items-center gap-1.5">
+                    <span>⏱ {t.timeLimit}:</span>
+                    <span className="text-white font-mono">
+                      {isEn ? nextPrayerInfo.next?.windowEn : toBengaliNumerals(nextPrayerInfo.next?.windowBn)}
+                    </span>
+                    <span className="text-emerald-400 text-[11px]">
+                      ({isEn ? nextPrayerInfo.next?.limitEn : nextPrayerInfo.next?.limitBn})
+                    </span>
+                  </div>
                 </div>
 
                 <div className="bg-emerald-950/70 border border-emerald-400/20 px-6 py-4 rounded-2xl text-center md:text-right min-w-[240px]">
@@ -417,6 +457,8 @@ export default function App() {
                   const displayFormatted = adjustedTime !== '--:--' ? formatDisplayTime(adjustedTime, settings.timeFormat || '12h') : '--:--';
                   const status = todayRecord ? todayRecord[key] : 'none';
                   const isCurrent = nextPrayerInfo?.current?.key === key;
+                  const windows = getPrayerWindows(schedule, settings.timingOffsets || {}, settings.timeFormat || '12h');
+                  const win = (windows as any)[key] || {};
 
                   return (
                     <div
@@ -439,6 +481,17 @@ export default function App() {
                         <div className="text-xl sm:text-2xl font-black text-emerald-300 font-mono my-2 tracking-tight">
                           {displayFormatted}
                         </div>
+
+                        {/* Prayer Time Window & End Limit */}
+                        <div className="bg-emerald-950/70 border border-emerald-500/20 rounded-lg px-2 py-1.5 my-1.5 text-center">
+                          <div className="text-[11px] font-bold text-emerald-300 font-mono">
+                            {t.timeWindow}: {isEn ? win.windowEn : toBengaliNumerals(win.windowBn)}
+                          </div>
+                          <div className="text-[10px] text-emerald-400/90 font-medium mt-0.5">
+                            {isEn ? win.limitEn : win.limitBn}
+                          </div>
+                        </div>
+
                         {offset !== 0 && (
                           <div className="text-[10px] font-semibold text-emerald-400/80">
                             {offset > 0 ? `+${offset}` : offset} min adj.
@@ -767,13 +820,16 @@ export default function App() {
                 <div className="bg-emerald-900/40 border border-emerald-500/30 rounded-xl p-4 text-center">
                   <div className="flex justify-between text-xs text-emerald-300 mb-1">
                     <span>{t.nextPrayer}</span>
-                    <span>{formatNum(nextPrayerInfo.next?.time)}</span>
+                    <span>{formatDisplayTime(nextPrayerInfo.next?.time, settings.timeFormat || '12h')}</span>
                   </div>
                   <div className="text-2xl font-black text-white">
                     {isEn ? nextPrayerInfo.next?.nameEn : nextPrayerInfo.next?.name}
                   </div>
+                  <div className="text-[11px] text-emerald-300 mt-1 font-semibold">
+                    {t.timeLimit}: {isEn ? nextPrayerInfo.next?.limitEn : nextPrayerInfo.next?.limitBn}
+                  </div>
                   <div className="bg-black/30 inline-flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-mono text-emerald-300 mt-2 border border-emerald-500/20">
-                    <span>Time left:</span>
+                    <span>{t.countdownTitle}:</span>
                     <span className="font-bold">{formatNum(formatMs(nextPrayerInfo.timeRemainingMs))}</span>
                   </div>
                 </div>
@@ -782,20 +838,28 @@ export default function App() {
               {/* 5 Prayers Grid */}
               <div className="grid grid-cols-5 gap-1.5 text-center">
                 {PRAYER_LIST.map((key) => {
-                  const time = schedule?.timings ? schedule.timings[key] : '--:--';
+                  const rawTime = schedule?.timings ? schedule.timings[key] : '--:--';
+                  const offset = settings.timingOffsets?.[key] || 0;
+                  const adjustedTime = rawTime !== '--:--' ? applyTimeOffset(rawTime, offset) : '--:--';
+                  const displayFormatted = adjustedTime !== '--:--' ? formatDisplayTime(adjustedTime, settings.timeFormat || '12h') : '--:--';
                   const isCurrent = nextPrayerInfo?.current?.key === key;
                   const pName = (PRAYER_NAMES as any)[key];
+                  const windows = getPrayerWindows(schedule, settings.timingOffsets || {}, settings.timeFormat || '12h');
+                  const win = (windows as any)[key] || {};
                   return (
                     <div
                       key={key}
-                      className={`p-2 rounded-lg border ${
+                      className={`p-1.5 rounded-lg border ${
                         isCurrent
                           ? 'bg-emerald-500/20 border-emerald-400'
                           : 'bg-white/5 border-white/5'
                       }`}
                     >
                       <div className="text-[11px] font-bold text-emerald-200">{isEn ? pName?.en : pName?.bn}</div>
-                      <div className="text-[10px] font-mono text-emerald-400 mt-0.5">{formatNum(time)}</div>
+                      <div className="text-[10px] font-mono text-emerald-400 mt-0.5">{displayFormatted}</div>
+                      <div className="text-[8.5px] text-emerald-300/80 mt-0.5 truncate" title={isEn ? win.limitEn : win.limitBn}>
+                        {isEn ? `Until ${win.end}` : `${win.end} পর্যন্ত`}
+                      </div>
                     </div>
                   );
                 })}

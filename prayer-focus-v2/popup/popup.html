@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,9 +17,18 @@
           <span class="brand-tag">Pray • Focus • Grow</span>
         </div>
       </div>
-      <div class="status-indicator" id="reminder-status-badge">
-        <span class="dot"></span>
-        <span class="status-text" id="status-label">Active</span>
+      
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <!-- EN/বাংলা toggle -->
+        <div class="lang-switch-box" style="display: flex; background: rgba(0,0,0,0.4); border: 1px solid rgba(52,211,153,0.3); border-radius: 8px; padding: 2px;">
+          <button id="btn-popup-en" style="background: #10b981; color: #022c22; border: none; padding: 2px 6px; border-radius: 6px; font-weight: 700; font-size: 10px; cursor: pointer;">EN</button>
+          <button id="btn-popup-bn" style="background: transparent; color: #a7f3d0; border: none; padding: 2px 6px; border-radius: 6px; font-weight: 700; font-size: 10px; cursor: pointer;">বাংলা</button>
+        </div>
+
+        <div class="status-indicator" id="reminder-status-badge">
+          <span class="dot"></span>
+          <span class="status-text" id="status-label">Active</span>
+        </div>
       </div>
     </header>
 
@@ -30,33 +39,39 @@
         <span class="time-label" id="next-prayer-time">--:--</span>
       </div>
       <h2 class="prayer-name-display" id="next-prayer-name">Prayer</h2>
+      <div id="next-prayer-limit" style="font-size: 11px; color: #a7f3d0; margin-bottom: 8px; font-weight: 500;">Time Limit: --:--</div>
       <div class="countdown-wrapper">
         <span class="countdown-label" id="label-time-left">Time Left:</span>
         <span class="countdown-digits" id="countdown-text">--:--:--</span>
       </div>
     </section>
 
-    <!-- Quick Prayer Timings Grid -->
+    <!-- Quick Prayer Timings Grid with Limits -->
     <div class="prayer-grid" id="prayer-grid">
       <div class="grid-item" data-key="fajr">
         <span class="p-name" id="name-fajr">Fajr</span>
         <span class="p-time" id="time-fajr">--:--</span>
+        <span class="p-limit" id="limit-fajr" style="font-size: 8.5px; color: #a7f3d0; opacity: 0.85; text-align: center; line-height: 1;">--</span>
       </div>
       <div class="grid-item" data-key="dhuhr">
         <span class="p-name" id="name-dhuhr">Dhuhr</span>
         <span class="p-time" id="time-dhuhr">--:--</span>
+        <span class="p-limit" id="limit-dhuhr" style="font-size: 8.5px; color: #a7f3d0; opacity: 0.85; text-align: center; line-height: 1;">--</span>
       </div>
       <div class="grid-item" data-key="asr">
         <span class="p-name" id="name-asr">Asr</span>
         <span class="p-time" id="time-asr">--:--</span>
+        <span class="p-limit" id="limit-asr" style="font-size: 8.5px; color: #a7f3d0; opacity: 0.85; text-align: center; line-height: 1;">--</span>
       </div>
       <div class="grid-item" data-key="maghrib">
         <span class="p-name" id="name-maghrib">Maghrib</span>
         <span class="p-time" id="time-maghrib">--:--</span>
+        <span class="p-limit" id="limit-maghrib" style="font-size: 8.5px; color: #a7f3d0; opacity: 0.85; text-align: center; line-height: 1;">--</span>
       </div>
       <div class="grid-item" data-key="isha">
         <span class="p-name" id="name-isha">Isha</span>
         <span class="p-time" id="time-isha">--:--</span>
+        <span class="p-limit" id="limit-isha" style="font-size: 8.5px; color: #a7f3d0; opacity: 0.85; text-align: center; line-height: 1;">--</span>
       </div>
     </div>
 

@@ -45,22 +45,22 @@
       <!-- 1. Daily Islamic Reminder Hero Card -->
       <section class="card reminder-hero-card">
         <div class="hero-header">
-          <span class="badge-tag">আজকের ইসলামিক উপদেশ ও দিকনির্দেশনা</span>
+          <span class="badge-tag" id="label-hero-badge">Daily Islamic Wisdom & Guidance</span>
           <span class="hero-icon">📖</span>
         </div>
-        <p class="hero-quote-text" id="daily-quote-text">লোড হচ্ছে...</p>
+        <p class="hero-quote-text" id="daily-quote-text">Loading...</p>
         <p class="hero-quote-ref" id="daily-quote-ref">--</p>
       </section>
 
       <!-- 2. Next Prayer Banner with Live Countdown -->
       <section class="card next-prayer-banner">
         <div class="banner-left">
-          <span class="banner-label">পরবর্তী ওয়াক্ত</span>
-          <div class="banner-prayer-name" id="banner-prayer-name">নামাজ</div>
-          <div class="banner-prayer-time" id="banner-prayer-time">ওয়াক্ত শুরু: --:--</div>
+          <span class="banner-label" id="label-next-prayer-banner">Next Prayer</span>
+          <div class="banner-prayer-name" id="banner-prayer-name">Prayer</div>
+          <div class="banner-prayer-time" id="banner-prayer-time">Starts at: --:--</div>
         </div>
         <div class="banner-right">
-          <div class="countdown-title">ওয়াক্ত শুরু হতে সময় বাকি</div>
+          <div class="countdown-title" id="label-countdown-title">Time Remaining Until Adhan</div>
           <div class="large-countdown" id="banner-countdown">--:--:--</div>
         </div>
       </section>
@@ -68,8 +68,8 @@
       <!-- 3. Five Daily Prayers Cards with ACTUAL Completion Actions -->
       <section class="section-container">
         <div class="section-header">
-          <h2>দৈনিক ৫ ওয়াক্ত সালাত</h2>
-          <div class="sync-status" id="sync-info">সিঙ্ক স্ট্যাটাস: চেক করা হচ্ছে...</div>
+          <h2 id="label-five-prayers">5 Daily Prayers Schedule</h2>
+          <div class="sync-status" id="sync-info">Sync Status: Checking...</div>
         </div>
         <div class="prayer-cards-row" id="prayer-cards-container">
           <!-- Dynamically populated 5 cards -->
@@ -82,46 +82,46 @@
         <!-- Left: Actual Daily Completion Summary (NO DEMO DATA) -->
         <section class="card progress-card">
           <div class="card-title-bar">
-            <h3>দৈনিক সালাত অগ্রগতি</h3>
+            <h3 id="label-prayer-progress">Today's Prayer Progress</h3>
             <span class="card-icon">📊</span>
           </div>
 
           <div id="progress-content">
-            <!-- If no data, renders "আজকের কোনো কার্যক্রম এখনো রেকর্ড করা হয়নি।" -->
+            <!-- If no data, renders "No activities recorded for today yet." -->
           </div>
         </section>
 
         <!-- Right: Real-time Quran Reading Timer -->
         <section class="card quran-timer-card">
           <div class="card-title-bar">
-            <h3>কোরআন তিলাওয়াত টাইমার</h3>
+            <h3 id="label-quran-timer">Quran Reading Timer</h3>
             <span class="card-icon">📿</span>
           </div>
           
           <div class="quran-timer-display" id="quran-timer-digits">00:00:00</div>
           
           <div class="quran-controls">
-            <button class="timer-btn btn-start" id="btn-timer-start">শুরু করুন</button>
-            <button class="timer-btn btn-pause" id="btn-timer-pause" disabled>বিরতি</button>
-            <button class="timer-btn btn-stop" id="btn-timer-stop" disabled>সংরক্ষণ ও শেষ</button>
-            <button class="timer-btn btn-reset" id="btn-timer-reset">রিসেট</button>
+            <button class="timer-btn btn-start" id="btn-timer-start">Start</button>
+            <button class="timer-btn btn-pause" id="btn-timer-pause" disabled>Pause</button>
+            <button class="timer-btn btn-stop" id="btn-timer-stop" disabled>Save & Stop</button>
+            <button class="timer-btn btn-reset" id="btn-timer-reset">Reset</button>
           </div>
 
           <div class="quran-stats-box" id="quran-stats-box">
             <div class="stat-item">
-              <span class="stat-label">আজকের তিলাওয়াত</span>
-              <span class="stat-value" id="quran-today-mins">০ মিনিট</span>
+              <span class="stat-label" id="label-quran-today">Today's Reading</span>
+              <span class="stat-value" id="quran-today-mins">0 mins</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">মোট সময়</span>
-              <span class="stat-value" id="quran-total-mins">০ মিনিট</span>
+              <span class="stat-label" id="label-quran-total">Total Reading</span>
+              <span class="stat-value" id="quran-total-mins">0 mins</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">দৈনিক লক্ষ্য</span>
-              <span class="stat-value" id="quran-goal-display">১৫ মিনিট</span>
+              <span class="stat-label" id="label-quran-goal">Daily Goal</span>
+              <span class="stat-value" id="quran-goal-display">15 mins</span>
             </div>
           </div>
-          <p class="timer-note">এই টাইমার আপনার স্ব-প্রতিবেদিত কোরআন পাঠের সময় সংরক্ষণ করে।</p>
+          <p class="timer-note" id="label-quran-note">Self-reported timer to build a daily consistent Quran habit.</p>
         </section>
 
       </div>

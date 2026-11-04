@@ -86,31 +86,47 @@
       return;
     }
 
-    // Reminder View with EXACTLY TWO BUTTONS
     const session = state.session || {};
-    const prayerName = PRAYER_NAMES_BN[session.prayerKey] || 'ওয়াক্তের';
-    const quote = state.quote || {
-      text: "নিশ্চয়ই সালাত অশ্লীল ও মন্দ কাজ থেকে বিরত রাখে।",
-      reference: "সূরা আল-আনকাবুত ২৯:৪৫"
+    const settings = state.settings || {};
+    const lang = settings.language || 'en';
+    const isBn = lang === 'bn';
+
+    const PRAYER_NAMES_EN = {
+      fajr: 'Fajr',
+      dhuhr: 'Dhuhr',
+      asr: 'Asr',
+      maghrib: 'Maghrib',
+      isha: 'Isha'
     };
+
+    const prayerName = isBn ? (PRAYER_NAMES_BN[session.prayerKey] || 'ওয়াক্তের') : (PRAYER_NAMES_EN[session.prayerKey] || 'Prayer');
+    const quote = state.quote || {
+      text: isBn ? "নিশ্চয়ই সালাত অশ্লীল ও মন্দ কাজ থেকে বিরত রাখে।" : "Indeed, prayer prohibits immorality and wrongdoing.",
+      reference: isBn ? "সূরা আল-আনকাবুত ২৯:৪৫" : "Surah Al-Ankabut 29:45"
+    };
+
+    const titleText = isBn ? `এখন ${prayerName} নামাজের সময়` : `It's time for ${prayerName} Prayer`;
+    const subText = isBn ? "দুনিয়ার কাজ কিছুক্ষণের জন্য থামিয়ে আল্লাহর ডাকে সাড়া দাও।" : "Pause your worldly tasks for a few moments and answer the call to prayer.";
+    const btn1Text = isBn ? "✓ আমি নামাজে যাচ্ছি" : "✓ I am going to pray";
+    const btn2Text = isBn ? "৫ মিনিট পরে মনে করিয়ে দিন" : "Remind me in 5 minutes";
 
     overlayElement.innerHTML = `
       <div class="pf-card">
         <div class="pf-icon-container">🕌</div>
-        <h2 class="pf-title">এখন ${prayerName} নামাজের সময়</h2>
-        <p class="pf-subtext">দুনিয়ার কাজ কিছুক্ষণের জন্য থামিয়ে আল্লাহর ডাকে সাড়া দাও।</p>
+        <h2 class="pf-title">${titleText}</h2>
+        <p class="pf-subtext">${subText}</p>
         
         <div class="pf-quote-box">
           <p class="pf-quote-text">"${escapeHtml(quote.text)}"</p>
-          <p class="pf-quote-ref">${escapeHtml(quote.reference)}</p>
+          <p class="pf-quote-ref">— ${escapeHtml(quote.reference)}</p>
         </div>
 
         <div class="pf-buttons-row">
           <button id="pf-btn-pray" class="pf-btn-pray">
-            ✓ আমি নামাজে যাচ্ছি
+            ${btn1Text}
           </button>
           <button id="pf-btn-snooze" class="pf-btn-snooze">
-            ৫ মিনিট পরে মনে করিয়ে দিন
+            ${btn2Text}
           </button>
         </div>
       </div>

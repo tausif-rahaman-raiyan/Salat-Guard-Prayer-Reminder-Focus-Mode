@@ -19,19 +19,19 @@
       </div>
       <div class="status-indicator" id="reminder-status-badge">
         <span class="dot"></span>
-        <span class="status-text" id="status-label">সক্রিয়</span>
+        <span class="status-text" id="status-label">Active</span>
       </div>
     </header>
 
     <!-- Next Prayer Countdown Card -->
     <section class="next-prayer-card">
       <div class="card-top">
-        <span class="label">পরবর্তী ওয়াক্ত</span>
+        <span class="label" id="label-next-prayer">Next Prayer</span>
         <span class="time-label" id="next-prayer-time">--:--</span>
       </div>
-      <h2 class="prayer-name-display" id="next-prayer-name">নামাজ</h2>
+      <h2 class="prayer-name-display" id="next-prayer-name">Prayer</h2>
       <div class="countdown-wrapper">
-        <span class="countdown-label">সময় বাকি:</span>
+        <span class="countdown-label" id="label-time-left">Time Left:</span>
         <span class="countdown-digits" id="countdown-text">--:--:--</span>
       </div>
     </section>
@@ -39,23 +39,23 @@
     <!-- Quick Prayer Timings Grid -->
     <div class="prayer-grid" id="prayer-grid">
       <div class="grid-item" data-key="fajr">
-        <span class="p-name">ফজর</span>
+        <span class="p-name" id="name-fajr">Fajr</span>
         <span class="p-time" id="time-fajr">--:--</span>
       </div>
       <div class="grid-item" data-key="dhuhr">
-        <span class="p-name">যোহর</span>
+        <span class="p-name" id="name-dhuhr">Dhuhr</span>
         <span class="p-time" id="time-dhuhr">--:--</span>
       </div>
       <div class="grid-item" data-key="asr">
-        <span class="p-name">আসর</span>
+        <span class="p-name" id="name-asr">Asr</span>
         <span class="p-time" id="time-asr">--:--</span>
       </div>
       <div class="grid-item" data-key="maghrib">
-        <span class="p-name">মাগরিব</span>
+        <span class="p-name" id="name-maghrib">Maghrib</span>
         <span class="p-time" id="time-maghrib">--:--</span>
       </div>
       <div class="grid-item" data-key="isha">
-        <span class="p-name">এশা</span>
+        <span class="p-name" id="name-isha">Isha</span>
         <span class="p-time" id="time-isha">--:--</span>
       </div>
     </div>
@@ -63,15 +63,15 @@
     <!-- Quick Actions (Does NOT touch New Tab) -->
     <div class="actions-row">
       <button class="btn btn-primary" id="btn-open-dashboard">
-        <span class="btn-icon">📊</span> ড্যাশবোর্ড খুলুন
+        <span class="btn-icon">📊</span> <span id="label-open-dashboard">Open Dashboard</span>
       </button>
       <button class="btn btn-secondary" id="btn-open-settings">
-        <span class="btn-icon">⚙️</span> সেটিংস
+        <span class="btn-icon">⚙️</span> <span id="label-open-settings">Settings</span>
       </button>
     </div>
 
     <footer class="popup-footer">
-      <span id="location-label">চট্টগ্রাম, বাংলাদেশ (Asia/Dhaka)</span>
+      <span id="location-label">Chattogram, Bangladesh (Asia/Dhaka)</span>
     </footer>
   </div>
 

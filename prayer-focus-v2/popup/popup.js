@@ -1,4 +1,4 @@
-import { fetchPrayerTimings, calculateNextPrayer } from '../modules/prayer-api.js';
+import { fetchPrayerTimings, calculateNextPrayer, formatDisplayTime, applyTimeOffset } from '../modules/prayer-api.js';
 import { getSettings } from '../modules/storage.js';
 import { toBengaliNumerals } from '../modules/timezone.js';
 
@@ -6,6 +6,7 @@ let countdownTimer = null;
 
 async function initPopup() {
   const settings = await getSettings();
+  const lang = settings.language || 'en';
   
   // Set location label
   const locEl = document.getElementById('location-label');
@@ -14,19 +15,31 @@ async function initPopup() {
   // Notifications status
   const statusEl = document.getElementById('status-label');
   if (statusEl) {
-    statusEl.textContent = settings.notificationsEnabled ? 'রিমাইন্ডার সক্রিয়' : 'বন্ধ রয়েছে';
+    if (lang === 'bn') {
+      statusEl.textContent = settings.notificationsEnabled ? 'রিমাইন্ডার সক্রিয়' : 'বন্ধ রয়েছে';
+    } else {
+      statusEl.textContent = settings.notificationsEnabled ? 'Active' : 'Disabled';
+    }
   }
 
   // Load schedule
   const schedule = await fetchPrayerTimings();
   if (schedule && schedule.timings) {
     // Populate grid
-    for (const [key, time] of Object.entries(schedule.timings)) {
+    const offsets = settings.timingOffsets || {};
+    const fmt = settings.timeFormat || '12h';
+
+    for (const [key, rawTime] of Object.entries(schedule.timings)) {
       const el = document.getElementById(`time-${key}`);
-      if (el) el.textContent = toBengaliNumerals(time);
+      if (el) {
+        const offset = offsets[key] || 0;
+        const adjusted = applyTimeOffset(rawTime, offset);
+        const formatted = formatDisplayTime(adjusted, fmt);
+        el.textContent = lang === 'bn' ? toBengaliNumerals(formatted) : formatted;
+      }
     }
 
-    startLiveCountdown(schedule);
+    startLiveCountdown(schedule, settings);
   }
 
   // Hook button handlers
@@ -47,11 +60,14 @@ async function initPopup() {
   });
 }
 
-function startLiveCountdown(schedule) {
+function startLiveCountdown(schedule, settings = {}) {
   if (countdownTimer) clearInterval(countdownTimer);
+  const lang = settings.language || 'en';
+  const offsets = settings.timingOffsets || {};
+  const fmt = settings.timeFormat || '12h';
 
   const update = () => {
-    const nextInfo = calculateNextPrayer(schedule);
+    const nextInfo = calculateNextPrayer(schedule, offsets);
     if (!nextInfo || !nextInfo.next) return;
 
     const next = nextInfo.next;
@@ -59,8 +75,13 @@ function startLiveCountdown(schedule) {
     const timeEl = document.getElementById('next-prayer-time');
     const countEl = document.getElementById('countdown-text');
 
-    if (nameEl) nameEl.textContent = next.name;
-    if (timeEl) timeEl.textContent = toBengaliNumerals(next.time);
+    if (nameEl) {
+      nameEl.textContent = lang === 'bn' ? next.name : next.nameEn;
+    }
+    if (timeEl) {
+      const formatted = formatDisplayTime(next.time, fmt);
+      timeEl.textContent = lang === 'bn' ? toBengaliNumerals(formatted) : formatted;
+    }
 
     // Highlight current active prayer in grid
     document.querySelectorAll('.grid-item').forEach((item) => {

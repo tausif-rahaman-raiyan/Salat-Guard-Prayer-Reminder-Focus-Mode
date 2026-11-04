@@ -77,8 +77,9 @@ jobs:
             ### 📦 Download & Install:
             - Download `prayer-focus-v2.0.0.zip` attached below.
             - Extract the zip file.
-            - In Chrome, open `chrome://extensions/` and enable **Developer Mode**.
-            - Click **Load unpacked** and select the folder that contains `manifest.json`.
+            - In Chrome, open `chrome://extensions/` and enable **Developer Mode** (top-right).
+            - Click **Load unpacked** (top-left) and select the folder that directly contains `manifest.json` (`prayer-focus-v2`).
+            - *Note*: If you cloned or downloaded the whole repository ZIP, select the `prayer-focus-v2` subfolder, not the repo root!
           files: dist/packages/prayer-focus-v2.0.0.zip
           draft: false
           prerelease: false
@@ -97,3 +98,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true

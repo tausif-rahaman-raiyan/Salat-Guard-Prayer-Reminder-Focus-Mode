@@ -294,6 +294,15 @@ export default function App() {
             >
               {t.tabPopupPreview}
             </button>
+            <button
+              onClick={() => setActiveTab('git-guide')}
+              className={`px-3.5 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5 ${
+                activeTab === 'git-guide' ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-300 hover:text-white'
+              }`}
+            >
+              <FolderGit2 className="w-3.5 h-3.5" />
+              {isEn ? 'GitHub & Fixes' : 'গিটহাব গাইড'}
+            </button>
           </div>
 
           {/* Right Controls: Language Switcher, Test overlay, and Download */}

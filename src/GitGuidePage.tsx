@@ -142,7 +142,8 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4`;
+        uses: actions/deploy-pages@v4
+        continue-on-error: true`;
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
@@ -168,37 +169,114 @@ jobs:
         />
       </div>
 
-      {/* Troubleshooting "Manifest file is missing or unreadable" */}
+      {/* Troubleshooting 1: GitHub Pages 404 Error */}
+      <div className="bg-rose-950/40 border border-rose-500/40 rounded-3xl p-7 space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-2.5">
+            <AlertCircle className="w-6 h-6 text-rose-400 shrink-0" />
+            <h2 className="text-lg font-bold text-rose-200">
+              {isEn ? 'Fix: "Failed to create deployment (status: 404) on GitHub Pages"' : 'সমাধান: GitHub Pages-এ "Failed to create deployment (status: 404)"'}
+            </h2>
+          </div>
+          <a
+            href="https://github.com/tausif-rahaman-raiyan/Salat-Guard-Prayer-Reminder-Focus-Mode/settings/pages"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-400/40 transition"
+          >
+            <span>{isEn ? 'Open Pages Settings' : 'পেইজেস সেটিংস খুলুন'}</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
+
+        <div className="text-xs md:text-sm text-rose-100/90 leading-relaxed space-y-3">
+          <p>
+            {isEn
+              ? 'This 404 error happens because by default GitHub Pages expects branch deployment. You need to enable "GitHub Actions" as the deployment source.'
+              : 'গিটহাবে ডিফল্টভাবে GitHub Pages সক্রিয় থাকে না অথবা "Deploy from a branch" মোডে থাকে, যার কারণে Actions থেকে ডিপ্লয় করার সময় 404 নট ফাউন্ড ত্রুটি দেখায়।'}
+          </p>
+
+          <div className="bg-black/60 border border-rose-500/30 rounded-xl p-4 text-xs space-y-2">
+            <div className="font-bold text-white flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-rose-500/30 text-rose-300 inline-flex items-center justify-center text-[11px]">1</span>
+              <span>{isEn ? 'Open Repository Settings > Pages' : 'GitHub রিপোজিটরির Settings > Pages-এ যান'}:</span>
+            </div>
+            <p className="text-emerald-300 font-mono text-[11px] pl-7">
+              https://github.com/tausif-rahaman-raiyan/Salat-Guard-Prayer-Reminder-Focus-Mode/settings/pages
+            </p>
+
+            <div className="font-bold text-white flex items-center gap-2 pt-1">
+              <span className="w-5 h-5 rounded-full bg-rose-500/30 text-rose-300 inline-flex items-center justify-center text-[11px]">2</span>
+              <span>{isEn ? 'Change Source under "Build and deployment":' : '"Build and deployment"-এর নিচে Source পরিবর্তন করুন'}:</span>
+            </div>
+            <p className="text-rose-200 pl-7">
+              {isEn ? 'Click the ' : 'ড্রপডাউনে ক্লিক করে '}
+              <strong className="text-amber-300">"Deploy from a branch"</strong>
+              {isEn ? ' dropdown and change it to ' : ' পরিবর্তন করে '}
+              <strong className="text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/40">GitHub Actions</strong>
+              {isEn ? '.' : ' নির্বাচন করুন।'}
+            </p>
+
+            <div className="font-bold text-white flex items-center gap-2 pt-1">
+              <span className="w-5 h-5 rounded-full bg-rose-500/30 text-rose-300 inline-flex items-center justify-center text-[11px]">3</span>
+              <span>{isEn ? 'Re-run Failed Workflow:' : 'ওয়ার্কফ্লোটি পুনরায় চালান'}:</span>
+            </div>
+            <p className="text-emerald-200 pl-7">
+              {isEn
+                ? 'Go to Actions tab, click "Re-run all jobs" or push your code. The deployment will immediately succeed and your live website will be live at: '
+                : 'Actions ট্যাবে গিয়ে "Re-run all jobs"-এ ক্লিক করুন অথবা কোড পুশ করুন। সাথে সাথে ওয়েবসাইটটি লাইভ হবে: '}
+              <span className="text-emerald-400 font-mono">https://tausif-rahaman-raiyan.github.io/Salat-Guard-Prayer-Reminder-Focus-Mode/</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Troubleshooting 2: Manifest file is missing or unreadable */}
       <div className="bg-amber-950/40 border border-amber-500/40 rounded-3xl p-7 space-y-4">
         <div className="flex items-center gap-2.5">
           <AlertCircle className="w-6 h-6 text-amber-400 shrink-0" />
           <h2 className="text-lg font-bold text-amber-300">
-            {isEn ? 'How to Solve "Manifest file is missing or unreadable"' : '"Manifest file is missing or unreadable" ত্রুটি সমাধানের নিয়ম'}
+            {isEn ? 'Fix: "Manifest file is missing or unreadable"' : 'সমাধান: "Manifest file is missing or unreadable"'}
           </h2>
         </div>
-        <div className="text-xs md:text-sm text-amber-100/90 leading-relaxed space-y-2">
+        <div className="text-xs md:text-sm text-amber-100/90 leading-relaxed space-y-3">
           <p>
             {isEn
-              ? 'When Chrome shows this error, it means you selected a folder that does not directly contain the "manifest.json" file.'
-              : 'গুগল ক্রোমে এই ত্রুটি দেখালে বুঝবেন আপনি এমন একটি ফোল্ডার সিলেক্ট করেছেন যার ভেতরে সরাসরি "manifest.json" ফাইলটি নেই (হয়তো কোনো সাবফোল্ডারের ভেতরে রয়েছে)।'}
+              ? 'When Chrome displays "Manifest file is missing or unreadable", it means you selected the root repository folder or an outer wrapper folder that does not directly contain manifest.json.'
+              : 'গুগল ক্রোমে এই ত্রুটি দেখালে বুঝবেন আপনি মূল প্রজেক্ট রুট ফোল্ডার (যেখানে Vite ও React আছে) সিলেক্ট করেছেন, যার সরাসরি ভেতরে manifest.json নেই। এক্সটেনশনটি prayer-focus-v2 ফোল্ডারে রয়েছে।'}
           </p>
-          <div className="bg-black/50 border border-amber-500/20 rounded-xl p-4 font-mono text-xs text-amber-200 space-y-1">
+          <div className="bg-black/50 border border-amber-500/20 rounded-xl p-4 font-mono text-xs text-amber-200 space-y-1.5">
             <div className="font-bold text-emerald-400">
-              {isEn ? '✓ CORRECT folder structure to select:' : '✓ যে ফোল্ডারটি নির্বাচন করতে হবে:'}
+              {isEn ? '✓ EXACT folder to select in "Load unpacked":' : '✓ "Load unpacked" এ যে ফোল্ডারটি সিলেক্ট করবেন:'}
             </div>
-            <div>📂 Selected Folder/</div>
-            <div className="pl-4">├── 📄 manifest.json &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← (Must be directly here!)</div>
-            <div className="pl-4">├── 📁 assets/</div>
-            <div className="pl-4">├── 📁 background/</div>
-            <div className="pl-4">├── 📁 dashboard/</div>
-            <div className="pl-4">└── 📁 popup/</div>
+            <div className="text-rose-400 line-through">❌ Salat-Guard-Prayer-Reminder-Focus-Mode/ (Repository root — Do NOT select)</div>
+            <div className="text-emerald-300 font-bold">👉 📂 prayer-focus-v2/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← (SELECT THIS FOLDER!)</div>
+            <div className="pl-6 text-emerald-400/90">├── 📄 manifest.json &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← (Present right here!)</div>
+            <div className="pl-6 text-emerald-400/70">├── 📁 assets/</div>
+            <div className="pl-6 text-emerald-400/70">├── 📁 background/</div>
+            <div className="pl-6 text-emerald-400/70">├── 📁 dashboard/</div>
+            <div className="pl-6 text-emerald-400/70">├── 📁 modules/</div>
+            <div className="pl-6 text-emerald-400/70">└── 📁 popup/</div>
           </div>
           <p className="text-xs text-amber-200/80">
             {isEn
-              ? 'If you extracted the ZIP into "prayer-focus-v2.0.0", double click into it to check if there is an inner "prayer-focus-v2" folder. Click into the folder where "manifest.json" is visible, and select that folder.'
-              : 'জিপ ফাইল আনজিপ করার পর ফোল্ডারটি ওপেন করে নিশ্চিত হোন যে ভেতরে manifest.json দেখা যাচ্ছে। যে ফোল্ডারে manifest.json রয়েছে, "Load unpacked" এ ক্লিক করে ঠিক সেই ফোল্ডারটি নির্বাচন করুন।'}
+              ? 'Tip: If using prayer-focus-v2.0.0.zip, make sure to extract (unzip) it first into a normal folder before clicking "Load unpacked".'
+              : 'টিপস: prayer-focus-v2.0.0.zip ডাউনলোড করলে আগে আনজিপ করে সাধারণ ফোল্ডারে রূপান্তর করুন, তারপর ক্রোম থেকে সিলেক্ট করুন।'}
           </p>
         </div>
+      </div>
+
+      {/* Troubleshooting 3: Node 20 & Ubuntu 26 runner notices */}
+      <div className="bg-emerald-950/30 border border-emerald-500/20 rounded-3xl p-6 space-y-2">
+        <h3 className="text-sm font-bold text-emerald-300 flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <span>{isEn ? 'Regarding GitHub Runner Notices (Node 20 & Ubuntu 26)' : 'গিটহাব রানার নোটিশ (Node 20 এবং Ubuntu 26)'}</span>
+        </h3>
+        <p className="text-xs text-emerald-200/80 leading-relaxed">
+          {isEn
+            ? 'The messages "Node.js 20 is deprecated... forced to run on Node.js 24" and "ubuntu-latest label will migrate to Ubuntu 26" are harmless informational notices from GitHub runner infrastructure. They do NOT break your build, tests, or releases.'
+            : 'Node 20 ও Ubuntu 26 সংক্রান্ত মেসেজগুলো গিটহাবের সার্ভারের সাধারণ সতর্কবার্তা। এটি আপনার কোড, টেস্ট বা এক্সটেনশন রিলিজের কোনো ক্ষতি করে না।'}
+        </p>
       </div>
 
       {/* Step by Step Git Commands */}

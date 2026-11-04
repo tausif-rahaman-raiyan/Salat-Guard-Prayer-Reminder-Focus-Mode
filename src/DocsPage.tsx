@@ -43,7 +43,7 @@ export const DocsPage: React.FC<DocsProps> = ({ lang }) => {
             </p>
           </div>
           <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-inner shrink-0">
-            <img src="/assets/aistudio/praying_99ed162a.png" alt="Prayer Focus" className="w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+            <img src="./assets/aistudio/praying_99ed162a.png" alt="Prayer Focus" className="w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
           </div>
         </div>
       </div>

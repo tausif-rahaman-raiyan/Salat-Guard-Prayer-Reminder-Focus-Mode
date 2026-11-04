@@ -257,7 +257,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
           
           <div className="flex items-center gap-3">
-            <img src="/assets/aistudio/praying_99ed162a.png" alt="Prayer Focus" className="w-9 h-9 object-contain drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+            <img src="./assets/aistudio/praying_99ed162a.png" alt="Prayer Focus" className="w-9 h-9 object-contain drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-lg text-emerald-400 tracking-tight">{t.appName}</span>
@@ -293,15 +293,6 @@ export default function App() {
               }`}
             >
               {t.tabPopupPreview}
-            </button>
-            <button
-              onClick={() => setActiveTab('git-guide')}
-              className={`px-3.5 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5 ${
-                activeTab === 'git-guide' ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-300 hover:text-white'
-              }`}
-            >
-              <FolderGit2 className="w-3.5 h-3.5" />
-              {isEn ? 'GitHub & Fixes' : 'গিটহাব গাইড'}
             </button>
           </div>
 
@@ -833,7 +824,7 @@ export default function App() {
             <div className="bg-[#022c22] border-2 border-emerald-500/40 rounded-2xl p-5 shadow-2xl space-y-4">
               <div className="flex items-center justify-between border-b border-emerald-500/20 pb-3">
                 <div className="flex items-center gap-2">
-                  <img src="/assets/aistudio/praying_99ed162a.png" alt="Prayer Focus" className="w-6 h-6 object-contain drop-shadow-[0_0_6px_rgba(52,211,153,0.5)]" />
+                  <img src="./assets/aistudio/praying_99ed162a.png" alt="Prayer Focus" className="w-6 h-6 object-contain drop-shadow-[0_0_6px_rgba(52,211,153,0.5)]" />
                   <div>
                     <h3 className="font-extrabold text-sm text-emerald-400">{t.appName}</h3>
                     <span className="text-[10px] text-emerald-300">{t.tagline}</span>
@@ -944,7 +935,7 @@ export default function App() {
               // Reminder Mode: EXACTLY TWO BUTTONS
               <div className="space-y-6">
                 <div className="w-20 h-20 mx-auto rounded-3xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center p-3">
-                  <img src="/assets/aistudio/praying_99ed162a.png" alt="Prayer Focus" className="w-12 h-12 object-contain drop-shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
+                  <img src="./assets/aistudio/praying_99ed162a.png" alt="Prayer Focus" className="w-12 h-12 object-contain drop-shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
                 </div>
 
                 <div>
@@ -999,7 +990,7 @@ export default function App() {
               // Focus Lock Mode: 8-Minute Session
               <div className="space-y-6">
                 <div className="w-20 h-20 mx-auto rounded-3xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center p-3">
-                  <img src="/assets/aistudio/praying_99ed162a.png" alt="Prayer Focus" className="w-12 h-12 object-contain drop-shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
+                  <img src="./assets/aistudio/praying_99ed162a.png" alt="Prayer Focus" className="w-12 h-12 object-contain drop-shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
                 </div>
 
                 <div>
